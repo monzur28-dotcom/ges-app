@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Green Energy System - e-GP Project Management</title>
+<style>
+  :root {
+    --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#2d333b;
+    --border:#30363d;--border2:#444c56;
+    --text:#e6edf3;--text2:#8b949e;--text3:#6e7681;
+    --green:#3fb950;--green2:#238636;--green3:#0d4a1e;--greentext:#56d364;
+    --blue:#58a6ff;--blue2:#1f6feb;--blue3:#0d2f6e;--bluetext:#79c0ff;
+    --amber:#d29922;--amber2:#f0883e;--amber3:#5a3e10;--ambertext:#f0b429;
+    --red:#f85149;--red2:#b62324;--red3:#490202;--redtext:#ff7b72;
+    --teal:#3dc9b3;--teal2:#1e6a6a;--tealtext:#4cc2b4;
+    --purple:#a371f7;--purple2:#6e40c9;--purpletext:#c6aaff;
+    --radius:8px;--radius-lg:12px;
+    --font:'Segoe UI',system-ui,sans-serif;
+    --mono:'Cascadia Code','Consolas',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;min-height:100vh}
+
+  .sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100;overflow-y:auto}
+  .sidebar-logo{padding:14px 16px 12px;border-bottom:1px solid var(--border)}
+  .logo-mark{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#1a5c2a,#238636);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;border:1px solid #2ea043}
+  .logo-text{font-size:13px;font-weight:700;color:var(--greentext);line-height:1.3}
+  .logo-sub{font-size:9px;color:var(--text3)}
+  .logo-reg{font-size:10px;color:var(--text3);line-height:1.8;border-top:1px solid var(--border);padding-top:8px}
+  .logo-reg span{color:var(--bluetext)}
+
+  .nav-section{padding:10px 8px 4px}
+  .nav-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;padding:0 10px 6px}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:6px;cursor:pointer;color:var(--text2);font-size:13px;transition:all .15s;border:none;background:none;width:100%;text-align:left}
+  .nav-item:hover{background:var(--bg3);color:var(--text)}
+  .nav-item.active{background:var(--green3);color:var(--greentext)}
+  .nav-item .icon{font-size:16px;width:18px;flex-shrink:0}
+  .nav-badge{margin-left:auto;background:var(--amber3);color:var(--ambertext);font-size:10px;padding:2px 6px;border-radius:10px;font-weight:600}
+  .sidebar-footer{margin-top:auto;padding:10px 8px;border-top:1px solid var(--border)}
+  .sidebar-footer-info{font-size:10px;color:var(--text3);padding:0 10px 8px;line-height:1.7}
+
+  .main{margin-left:240px;min-height:100vh}
+  .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+  .topbar-title{font-size:15px;font-weight:600;color:var(--text)}
+  .topbar-right{text-align:right}
+  .topbar-right .owner{font-size:11px;color:var(--text3)}
+  .topbar-right .owner span{color:var(--greentext);font-weight:600}
+  .topbar-right .ids{font-size:10px;color:var(--text3)}
+
+  .btn{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--bg3);color:var(--text);transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+  .btn:hover{background:var(--bg4)}
+  .btn.primary{background:var(--green2);border-color:var(--green);color:#fff}
+  .btn.primary:hover{background:#2ea043}
+  .btn.danger{background:var(--red3);border-color:var(--red2);color:var(--redtext)}
+  .btn.danger:hover{background:#5a0b0b}
+
+  .page{padding:22px 26px;display:none}
+  .page.active{display:block}
+
+  .company-banner{background:var(--bg2);border:1px solid var(--green2);border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+  .cb-left .cb-name{font-size:15px;font-weight:700;color:var(--greentext);letter-spacing:.02em}
+  .cb-left .cb-type{font-size:11px;color:var(--text3);margin-top:3px}
+  .cb-left .cb-addr{font-size:11px;color:var(--text3);margin-top:1px}
+  .cb-right{text-align:right;font-size:11px;color:var(--text3);line-height:1.9;flex-shrink:0}
+  .cb-right span{color:var(--bluetext)}
+
+  .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+  .card-header{padding:13px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+  .card-title{font-size:14px;font-weight:600;color:var(--text)}
+  .card-body{padding:16px 18px}
+
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin-bottom:22px}
+  .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px}
+  .stat-label{font-size:10px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px}
+  .stat-value{font-size:21px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+  .stat-sub{font-size:11px;color:var(--text3);margin-top:3px}
+  .stat-card.green{border-color:var(--green2)}.stat-card.green .stat-value{color:var(--greentext)}
+  .stat-card.blue{border-color:var(--blue2)}.stat-card.blue .stat-value{color:var(--bluetext)}
+  .stat-card.amber{border-color:var(--amber)}.stat-card.amber .stat-value{color:var(--ambertext)}
+  .stat-card.red{border-color:var(--red2)}.stat-card.red .stat-value{color:var(--redtext)}
+  .stat-card.teal{border-color:var(--teal2)}.stat-card.teal .stat-value{color:var(--tealtext)}
+  .stat-card.purple{border-color:var(--purple2)}.stat-card.purple .stat-value{color:var(--purpletext)}
+
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{background:var(--bg3);padding:9px 13px;text-align:left;font-weight:600;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border);white-space:nowrap}
+  td{padding:9px 13px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:var(--bg3);color:var(--text)}
+  .num{text-align:right;font-family:var(--mono);font-size:12px}
+  th.num{text-align:right}
+  .mono{font-family:var(--mono);font-size:12px}
+  .pos{color:var(--greentext)}.neg{color:var(--redtext)}.hold{color:var(--ambertext)}
+
+  .badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+  .badge.green{background:var(--green3);color:var(--greentext);border:1px solid var(--green2)}
+  .badge.amber{background:var(--amber3);color:var(--ambertext);border:1px solid var(--amber)}
+  .badge.red{background:var(--red3);color:var(--redtext);border:1px solid var(--red2)}
+  .badge.blue{background:var(--blue3);color:var(--bluetext);border:1px solid var(--blue2)}
+  .badge.purple{background:#2d1e56;color:var(--purpletext);border:1px solid var(--purple2)}
+  .badge.teal{background:var(--teal2);color:var(--tealtext);border:1px solid var(--teal)}
+
+  .proj-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;margin-bottom:22px}
+  .proj-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+  .proj-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px}
+  .proj-card.green::before{background:var(--green)}
+  .proj-card.amber::before{background:var(--amber2)}
+  .proj-card.blue::before{background:var(--blue)}
+  .proj-card:hover{border-color:var(--border2);transform:translateY(-1px)}
+  .proj-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px}
+  .proj-po{font-size:11px;color:var(--text3);margin-bottom:10px;font-family:var(--mono)}
+  .proj-meta{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .proj-meta-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em}
+  .proj-meta-value{font-size:13px;font-weight:600;margin-top:2px}
+  .profit-bar-wrap{margin-top:12px}
+  .profit-bar-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:3px}
+  .profit-bar{height:5px;background:var(--bg4);border-radius:3px;overflow:hidden}
+  .profit-bar-fill{height:100%;border-radius:3px;background:var(--green)}
+
+  .tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:18px}
+  .tab{padding:9px 16px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;transition:all .15s;border-top:none;border-left:none;border-right:none;background:none;margin-bottom:-1px}
+  .tab:hover{color:var(--text2)}
+  .tab.active{color:var(--text);border-bottom-color:var(--green)}
+
+  .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+  .form-group{display:flex;flex-direction:column;gap:5px}
+  .form-group.full{grid-column:1/-1}
+  label{font-size:12px;font-weight:500;color:var(--text2)}
+  input,select,textarea{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:7px 11px;color:var(--text);font-size:13px;font-family:var(--font);outline:none;transition:border-color .15s}
+  input:focus,select:focus,textarea:focus{border-color:var(--green)}
+  select option{background:var(--bg3)}
+  textarea{resize:vertical;min-height:75px}
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:200}
+  .modal-overlay.open{display:flex}
+  .modal{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);width:90%;max-width:660px;max-height:85vh;overflow-y:auto}
+  .modal-header{padding:15px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg2)}
+  .modal-title{font-size:15px;font-weight:600}
+  .modal-body{padding:18px 20px}
+  .modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+  .close-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;padding:4px}
+  .close-btn:hover{color:var(--text)}
+
+  .partner-tabs{display:flex;gap:8px;margin-bottom:18px}
+  .ptab{padding:7px 16px;border-radius:20px;font-size:13px;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text2);transition:all .15s}
+  .ptab:hover{color:var(--text)}
+  .ptab.active{background:var(--blue3);border-color:var(--blue2);color:var(--bluetext)}
+
+  .alert{padding:11px 15px;border-radius:8px;font-size:13px;display:flex;align-items:flex-start;gap:10px;margin-bottom:14px}
+  .alert.amber{background:var(--amber3);border:1px solid var(--amber);color:var(--ambertext)}
+  .alert.green{background:var(--green3);border:1px solid var(--green2);color:var(--greentext)}
+  .alert.blue{background:var(--blue3);border:1px solid var(--blue2);color:var(--bluetext)}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .mb20{margin-bottom:20px}.mb14{margin-bottom:14px}.separator{height:1px;background:var(--border);margin:18px 0}
+
+  .timeline{padding:0 0 0 18px}
+  .timeline-item{position:relative;padding:0 0 18px 18px;border-left:2px solid var(--border)}
+  .timeline-item:last-child{border-left-color:transparent}
+  .timeline-dot{position:absolute;left:-7px;top:4px;width:12px;height:12px;border-radius:50%;border:2px solid var(--bg2)}
+  .timeline-dot.green{background:var(--green)}.timeline-dot.amber{background:var(--amber2)}.timeline-dot.blue{background:var(--blue)}
+  .timeline-date{font-size:11px;color:var(--text3);margin-bottom:2px}
+  .timeline-title{font-size:13px;font-weight:600;color:var(--text)}
+  .timeline-body{font-size:12px;color:var(--text3);margin-top:3px}
+
+  .chart-container{position:relative;width:100%;height:250px}
+  .info-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+  .info-row:last-child{border-bottom:none}
+  .info-key{font-size:12px;color:var(--text3)}
+  .info-val{font-size:13px;font-weight:500;color:var(--text);font-family:var(--mono)}
+
+  .dep-proj-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:0}
+  .dep-proj-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;position:relative;overflow:hidden}
+  .dep-proj-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px}
+  .dep-proj-card.green::before{background:var(--green)}
+  .dep-proj-card.amber::before{background:var(--amber2)}
+  .dep-proj-card.blue::before{background:var(--blue)}
+  .dep-proj-card.teal::before{background:var(--teal)}
+  .dep-proj-card .dp-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:10px}
+  .dep-proj-card .dp-amount{font-size:22px;font-weight:700;color:var(--ambertext);margin-bottom:10px}
+  .dep-proj-card .dp-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px}
+  .dep-proj-card .dp-row:last-of-type{border-bottom:none}
+  .dep-proj-card .dp-key{color:var(--text3)}
+  .dep-proj-card .dp-val{font-weight:500;color:var(--text);font-family:var(--mono)}
+  .dep-proj-card .dp-val.amber{color:var(--ambertext)}
+  .dep-proj-card .dp-val.green{color:var(--greentext)}
+  .dep-proj-card .dp-val.red{color:var(--redtext)}
+  .dep-proj-card .dp-val.blue{color:var(--bluetext)}
+  .handover-inline{display:flex;align-items:center;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+  .handover-inline input[type=date]{font-size:12px;padding:5px 8px;flex:1;background:var(--bg3);border:1px solid var(--amber);border-radius:6px;color:var(--ambertext)}
+  .handover-inline input[type=date]:focus{border-color:var(--green);color:var(--text)}
+  .handover-inline .btn-save{padding:5px 12px;font-size:12px;background:var(--green2);border:1px solid var(--green);color:#fff;border-radius:6px;cursor:pointer;white-space:nowrap}
+  .handover-inline .btn-save:hover{background:#2ea043}
+  @media print{
+    .sidebar,.topbar,.btn{display:none!important}
+    .main{margin-left:0}
+    .page{padding:10px}
+    .print-co-header{display:block!important}
+  }
+  .print-co-header{display:none;border-bottom:2px solid #238636;padding-bottom:10px;margin-bottom:16px;font-family:sans-serif}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon">&#9889;</div>
+      <div>
+        <div class="logo-text">Green Energy System</div>
+        <div class="logo-sub">Importer &bull; Exporter &bull; Supplier</div>
+      </div>
+    </div>
+    <div class="logo-reg">
+      <div>&#128205; 7/B, South Begun Bari, Tejgaon I/A, Dhaka-1208</div>
+      <div>&#128222; 01716152921 &bull; 01730794699</div>
+      <div>&#128196; TL: <span>TRAD/DNCC/029577/2022</span></div>
+      <div>&#128188; VAT: <span>000619532-0203</span></div>
+      <div>&#128178; TIN: <span>595332671126</span></div>
+      <div>&#9993; gesystembd@gmail.com</div>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Overview</div>
+    <button class="nav-item active" onclick="showPage('dashboard')"><span class="icon">&#128202;</span> Dashboard</button>
+    <button class="nav-item" onclick="showPage('projects')"><span class="icon">&#128193;</span> All Projects</button>
+    <button class="nav-item" onclick="showPage('deposits')"><span class="icon">&#128274;</span> Security Deposits <span class="nav-badge amber">3</span></button>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Projects</div>
+    <button class="nav-item" onclick="showPage('bibiyana-big')"><span class="icon">&#127981;</span> Bibiyana Big</button>
+    <button class="nav-item" onclick="showPage('bibiyana-small')"><span class="icon">&#127981;</span> Bibiyana Small</button>
+    <button class="nav-item" onclick="showPage('shikalbaha')"><span class="icon">&#127981;</span> Shikalbaha</button>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Finance</div>
+    <button class="nav-item" onclick="showPage('partners')"><span class="icon">&#128101;</span> Partners P&amp;L</button>
+    <button class="nav-item" onclick="showPage('expenses')"><span class="icon">&#128184;</span> All Expenses</button>
+    <button class="nav-item" onclick="showPage('new-project')"><span class="icon">&#10133;</span> Add New Project</button>
+  </div>
+  <div class="sidebar-footer">
+    <div class="sidebar-footer-info">
+      <div style="color:var(--text2);font-weight:600;margin-bottom:2px">M/s. Green Energy System</div>
+      <div>Prop: Mohammad Tariquzzaman</div>
+      <div>Est: 18 September 2018</div>
+      <div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <span style="color:var(--greentext)">&#128100; <span id="current-user" style="font-weight:600"></span></span>
+        <button onclick="switchUser()" style="font-size:10px;padding:2px 8px;border-radius:4px;background:var(--bg4);border:1px solid var(--border2);color:var(--text3);cursor:pointer">Switch</button>
+      </div>
+    </div>
+    <button class="nav-item" onclick="window.print()"><span class="icon">&#128424;</span> Print / Export</button>
+    <button class="nav-item" onclick="clearAllStorage()" style="color:var(--redtext);font-size:12px"><span class="icon">&#128465;</span> Reset All Data</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="page-title">Dashboard</div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <div class="topbar-right">
+        <div class="owner">Proprietor: <span>Mohammad Tariquzzaman</span></div>
+        <div class="ids" style="display:flex;align-items:center;gap:10px">
+          <span>E-TIN: 558971736781 &nbsp;&bull;&nbsp; NID: 4627481478 &nbsp;&bull;&nbsp; BDT (&#2547;)</span>
+          <span style="background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:2px 10px;font-size:11px">
+            &#9749; <span id="sync-status" style="color:var(--bluetext)">&#8987; Loading...</span>
+          </span>
+          <span id="last-sync" style="font-size:10px;color:var(--text3)"></span>
+        </div>
+      </div>
+      <button class="btn primary" onclick="showPage('new-project')">+ New Project</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="company-banner">
+      <div class="cb-left">
+        <div class="cb-name">M/s. GREEN ENERGY SYSTEM</div>
+        <div class="cb-type">Importer, Exporter &amp; Supplier (Sole Proprietorship) &mdash; e-GP Registered Firm</div>
+        <div class="cb-addr">7/B, South Begun Bari, Tejgaon Industrial Area, Dhaka-1208, Bangladesh</div>
+      </div>
+      <div class="cb-right">
+        <div>Trade Lic: <span>TRAD/DNCC/029577/2022</span> &nbsp;(Valid: 30 Jun 2026)</div>
+        <div>VAT No: <span>000619532-0203</span> &nbsp;&bull;&nbsp; TIN: <span>595332671126</span></div>
+        <div>E-TIN: <span>558971736781</span> &nbsp;&bull;&nbsp; Tax AY 2024-25: <span>Paid in full</span></div>
+        <div>Phone: 01716152921 / 01730794699 &nbsp;&bull;&nbsp; gesystembd@gmail.com</div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card green"><div class="stat-label">Total Tender Value</div><div class="stat-value" id="s-tender">&#2547;0</div><div class="stat-sub">3 active projects</div></div>
+      <div class="stat-card blue"><div class="stat-label">Total Profit</div><div class="stat-value" id="s-profit">&#2547;0</div><div class="stat-sub">Across all projects</div></div>
+      <div class="stat-card amber"><div class="stat-label">Security Deposits</div><div class="stat-value" id="s-deposit">&#2547;0</div><div class="stat-sub">Held by clients</div></div>
+      <div class="stat-card teal"><div class="stat-label">Cash Received</div><div class="stat-value" id="s-received">&#2547;0</div><div class="stat-sub">After deductions</div></div>
+      <div class="stat-card red"><div class="stat-label">Total Expenses</div><div class="stat-value" id="s-expenses">&#2547;0</div><div class="stat-sub">Product + Tax + Petty</div></div>
+      <div class="stat-card purple"><div class="stat-label">Petty Expenses</div><div class="stat-value" id="s-petty">&#2547;0</div><div class="stat-sub">Travel, fees, misc.</div></div>
+    </div>
+    <div class="grid2 mb20">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Project Overview</div></div>
+        <div class="card-body"><div class="chart-container"><canvas id="overviewChart" role="img" aria-label="Project financials bar chart">Chart</canvas></div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Profit Margin by Project</div></div>
+        <div class="card-body"><div class="chart-container"><canvas id="marginChart" role="img" aria-label="Profit margin doughnut chart">Chart</canvas></div></div>
+      </div>
+    </div>
+    <div class="card mb20">
+      <div class="card-header"><div class="card-title">Security Deposit Tracker</div><span class="badge amber">Action Required</span></div>
+      <div class="card-body" id="upcoming-deposits"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Recent Activity</div></div>
+      <div class="card-body"><div class="timeline" id="recent-timeline"></div></div>
+    </div>
+  </div>
+
+  <!-- ALL PROJECTS -->
+  <div class="page" id="page-projects">
+    <div class="proj-grid" id="proj-grid-all"></div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">All Projects Summary</div></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Project</th><th>Reference / PO</th><th class="num">Tender Value (&#2547;)</th><th class="num">Total Profit (&#2547;)</th><th class="num">Security Deposit (&#2547;)</th><th class="num">Cash Received (&#2547;)</th><th class="num">Petty Exp. (&#2547;)</th><th>Handover Date</th><th>SD Release</th><th>Margin %</th><th>Status</th></tr></thead>
+        <tbody id="projects-table-body"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- SECURITY DEPOSITS -->
+  <div class="page" id="page-deposits">
+    <div class="alert amber"><span>&#9888;</span><div>Security deposits are held by the government client (BPDB/EGCB) until warranty period ends. Track release dates and follow up timely to recover funds.</div></div>
+    <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="stat-card amber"><div class="stat-label">Total Held</div><div class="stat-value" id="dep-total">&#2547;0</div></div>
+      <div class="stat-card green"><div class="stat-label">Released</div><div class="stat-value" id="dep-released">&#2547;0</div></div>
+      <div class="stat-card red"><div class="stat-label">Pending</div><div class="stat-value" id="dep-pending">&#2547;0</div></div>
+    </div>
+    <!-- Project deposit cards -->
+    <div id="deposit-project-cards" class="mb20"></div>
+
+    <!-- Timeline -->
+    <div class="card mb20">
+      <div class="card-header">
+        <div class="card-title">Deposit Timeline</div>
+        <button class="btn" onclick="openDepositModal()">+ Add Extra Record</button>
+      </div>
+      <div class="card-body" id="deposit-timeline"></div>
+    </div>
+
+    <!-- Table -->
+    <div class="card">
+      <div class="card-header"><div class="card-title">All Deposit Records</div></div>
+      <div class="table-wrap"><table>
+        <thead><tr>
+          <th>Project</th><th>Type</th>
+          <th class="num">Amount (&#2547;)</th>
+          <th>Handover Date</th>
+          <th>SD Release Date</th>
+          <th>Days Remaining</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr></thead>
+        <tbody id="deposits-table"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- BIBIYANA BIG -->
+  <div class="page" id="page-bibiyana-big">
+    <div class="stats-grid" id="bb-stats"></div>
+    <div class="alert blue" id="bb-alert"></div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab(this,'bb','products')">Products (14)</button>
+      <button class="tab" onclick="switchTab(this,'bb','petty')">Petty Expenses</button>
+      <button class="tab" onclick="switchTab(this,'bb','summary')">Financial Summary</button>
+    </div>
+    <div id="bb-products" class="tab-content">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Product Cost Breakdown &mdash; Bently Nevada VMS</div><div style="display:flex;gap:6px"><button class="btn" style="font-size:12px" onclick="openEditProject('bibiyana-big')">&#9998; Edit Project</button><button class="btn" onclick="openAddExpense('Bibiyana Big','product')">+ Add Item</button></div></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>#</th><th>Item Description</th><th>Spec / Part No.</th><th>Qty</th><th>Source</th><th class="num">Unit Price (&#2547;)</th><th class="num">Total Cost (&#2547;)</th><th class="num">Tender Price (&#2547;)</th><th class="num">Profit (&#2547;)</th></tr></thead>
+          <tbody id="bb-products-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+    <div id="bb-petty" class="tab-content" style="display:none">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Petty Expenses &mdash; Bibiyana, Sylhet</div><button class="btn" onclick="openAddExpense('Bibiyana Big','petty')">+ Add Expense</button></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>#</th><th>Date</th><th>Description</th><th>Person</th><th class="num">Amount (&#2547;)</th></tr></thead>
+          <tbody id="bb-petty-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+    <div id="bb-summary" class="tab-content" style="display:none">
+      <div class="grid2">
+        <div class="card"><div class="card-header"><div class="card-title">Financial Summary</div></div><div class="card-body" id="bb-fin-summary"></div></div>
+        <div class="card"><div class="card-header"><div class="card-title">Top Profit Items</div></div><div class="card-body"><div class="chart-container"><canvas id="bbChart" role="img" aria-label="BB profit chart">Chart</canvas></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BIBIYANA SMALL -->
+  <div class="page" id="page-bibiyana-small">
+    <div class="stats-grid" id="bs-stats"></div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab(this,'bs','products')">Products (35)</button>
+      <button class="tab" onclick="switchTab(this,'bs','petty')">Petty Expenses</button>
+      <button class="tab" onclick="switchTab(this,'bs','summary')">Financial Summary</button>
+    </div>
+    <div id="bs-products" class="tab-content">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Product Cost Breakdown &mdash; Control System Accessories</div><div style="display:flex;gap:6px"><button class="btn" style="font-size:12px" onclick="openEditProject('bibiyana-small')">&#9998; Edit Project</button><button class="btn" onclick="openAddExpense('Bibiyana Small','product')">+ Add Item</button></div></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>#</th><th>Item Description</th><th>Qty</th><th class="num">Tender Price (&#2547;)</th><th class="num">Purchase Price (&#2547;)</th><th class="num">Profit (&#2547;)</th><th>Status</th></tr></thead>
+          <tbody id="bs-products-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+    <div id="bs-petty" class="tab-content" style="display:none">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Petty Expenses</div><button class="btn" onclick="openAddExpense('Bibiyana Small','petty')">+ Add Expense</button></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>#</th><th>Date</th><th>Description</th><th>Person</th><th class="num">Amount (&#2547;)</th><th>Remarks</th></tr></thead>
+          <tbody id="bs-petty-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+    <div id="bs-summary" class="tab-content" style="display:none">
+      <div class="grid2">
+        <div class="card"><div class="card-header"><div class="card-title">Financial Summary</div></div><div class="card-body" id="bs-fin-summary"></div></div>
+        <div class="card"><div class="card-header"><div class="card-title">Margin Analysis</div></div><div class="card-body"><div class="chart-container"><canvas id="bsChart" role="img" aria-label="BS margin chart">Chart</canvas></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHIKALBAHA -->
+  <div class="page" id="page-shikalbaha">
+    <div class="stats-grid" id="sh-stats"></div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab(this,'sh','items')">Expenditure Items</button>
+      <button class="tab" onclick="switchTab(this,'sh','receivables')">Receivables</button>
+      <button class="tab" onclick="switchTab(this,'sh','summary')">Financial Summary</button>
+    </div>
+    <div id="sh-items" class="tab-content">
+      <div class="card"><div class="card-header"><div class="card-title">Project Expenditures</div></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>#</th><th>Description</th><th>Date</th><th class="num">Amount (&#2547;)</th><th>Category</th><th>Remarks</th></tr></thead>
+          <tbody id="sh-items-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+    <div id="sh-receivables" class="tab-content" style="display:none">
+      <div class="card"><div class="card-header"><div class="card-title">Expected Receivables</div></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>#</th><th>Description</th><th class="num">Amount (&#2547;)</th><th>Expected Date</th><th>Status</th></tr></thead>
+          <tbody id="sh-recv-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+    <div id="sh-summary" class="tab-content" style="display:none">
+      <div class="grid2">
+        <div class="card"><div class="card-header"><div class="card-title">Financial Summary</div></div><div class="card-body" id="sh-fin-summary"></div></div>
+        <div class="card"><div class="card-header"><div class="card-title">Cost Breakdown</div></div><div class="card-body"><div class="chart-container"><canvas id="shChart" role="img" aria-label="Shikalbaha cost chart">Chart</canvas></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PARTNERS -->
+  <div class="page" id="page-partners">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;gap:12px">
+      <div class="alert blue" style="margin-bottom:0;flex:1"><span>&#128101;</span><div>Tariquzzaman &amp; Monzur Ahmed are the <strong>permanent core partners</strong>. Temporary partners can be added per project and removed after completion.</div></div>
+      <button class="btn primary" onclick="openAddPartnerModal()" style="flex-shrink:0;white-space:nowrap">&#43; Add Temp Partner</button>
+    </div>
+    <div id="partner-tabs-container" class="partner-tabs"></div>
+    <div id="partner-panels-container"></div>
+  </div>
+
+  <!-- ALL EXPENSES -->
+  <div class="page" id="page-expenses">
+    <div class="stats-grid" style="grid-template-columns:repeat(4,1fr)">
+      <div class="stat-card red"><div class="stat-label">Product Costs</div><div class="stat-value" id="exp-products">&#2547;0</div></div>
+      <div class="stat-card amber"><div class="stat-label">Petty Expenses</div><div class="stat-value" id="exp-petty">&#2547;0</div></div>
+      <div class="stat-card blue"><div class="stat-label">VAT &amp; Taxes</div><div class="stat-value" id="exp-vat">&#2547;0</div></div>
+      <div class="stat-card purple"><div class="stat-label">Total Expenditure</div><div class="stat-value" id="exp-total">&#2547;0</div></div>
+    </div>
+    <div class="card mb20">
+      <div class="card-header"><div class="card-title">Stacked Expenses by Project</div></div>
+      <div class="card-body"><div class="chart-container" style="height:270px"><canvas id="expChart" role="img" aria-label="Stacked expense chart">Chart</canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">All Petty Expenses</div>
+        <select id="exp-filter" onchange="filterExpenses()" style="font-size:12px;padding:4px 8px">
+          <option value="all">All Projects</option>
+          <option value="Bibiyana Big">Bibiyana Big</option>
+          <option value="Bibiyana Small">Bibiyana Small</option>
+          <option value="Shikalbaha">Shikalbaha</option>
+        </select>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Project</th><th>Date</th><th>Description</th><th>Person</th><th class="num">Amount (&#2547;)</th></tr></thead>
+        <tbody id="all-expenses-tbody"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- NEW PROJECT -->
+  <div class="page" id="page-new-project">
+    <div class="card" style="max-width:700px">
+      <div class="card-header"><div class="card-title">Add New e-GP Project</div></div>
+      <div class="card-body">
+        <div class="alert blue" style="margin-bottom:14px"><span>&#128196;</span><div style="font-size:12px">For <strong>Green Energy System</strong> &mdash; Mohammad Tariquzzaman (TL: TRAD/DNCC/029577/2022). Security deposit is typically 10% of tender value for performance security in BPDB/EGCB tenders.</div></div>
+        <div class="form-grid">
+          <div class="form-group full"><label>Project Name *</label><input type="text" id="np-name" placeholder="e.g. Haripur 360MW CCPP Spares"></div>
+          <div class="form-group full"><label>PO / Work Order Number</label><input type="text" id="np-po" placeholder="e.g. 27.11.3677.454.05.004.25.XXX"></div>
+          <div class="form-group"><label>Client / Plant Name</label><input type="text" id="np-client" placeholder="e.g. BPDB, EGCB, NWPGCL"></div>
+          <div class="form-group"><label>Location</label><input type="text" id="np-location" placeholder="e.g. Haripur, Narayanganj"></div>
+          <div class="form-group"><label>Tender Value (&#2547;) *</label><input type="number" id="np-tender" placeholder="0"></div>
+          <div class="form-group"><label>Security Deposit Amount (&#2547;)</label><input type="number" id="np-deposit" placeholder="0"></div>
+          <div class="form-group"><label>Contract / PO Date</label><input type="date" id="np-contract-date"></div>
+          <div class="form-group"><label>Expected Delivery Date</label><input type="date" id="np-delivery-date"></div>
+          <div class="form-group">
+            <label>&#128197; Project Handover Date</label>
+            <input type="date" id="np-handover" onchange="autoCalcRelease('np')">
+            <span style="font-size:11px;color:var(--text3);margin-top:3px">Security deposit releases exactly 1 year after handover</span>
+          </div>
+          <div class="form-group">
+            <label>&#128274; Security Deposit Release Date <span style="color:var(--greentext);font-size:10px">(auto-calculated)</span></label>
+            <input type="date" id="np-sd-release" style="color:var(--ambertext)">
+            <span style="font-size:11px;color:var(--text3);margin-top:3px">Edit manually if needed</span>
+          </div>
+          <div class="form-group"><label>Status</label><select id="np-status"><option>Ongoing</option><option>Completed</option><option>Bid Submitted</option><option>Planning</option></select></div>
+          <div class="form-group full"><label>Notes</label><textarea id="np-notes" placeholder="Procurement details, supplier countries, any special notes..."></textarea></div>
+        </div>
+        <div class="separator"></div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn" onclick="showPage('projects')">Cancel</button>
+          <button class="btn primary" onclick="saveNewProject()">Save Project</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD TEMP PARTNER MODAL -->
+<div class="modal-overlay" id="modal-add-partner">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header"><div class="modal-title">&#43; Add Temporary Partner</div><button class="close-btn" onclick="closeModal('modal-add-partner')">&#10005;</button></div>
+    <div class="modal-body">
+      <div class="alert amber" style="margin-bottom:14px"><span>&#8987;</span><div style="font-size:12px">Temporary partners are linked to specific projects. You can remove them after project completion. Core partners (Tariquzzaman &amp; Monzur Ahmed) cannot be removed.</div></div>
+      <div class="form-grid">
+        <div class="form-group full"><label>Partner Full Name *</label><input type="text" id="ap-name" placeholder="e.g. Helalur Rahman"></div>
+        <div class="form-group"><label>Phone / Contact</label><input type="text" id="ap-phone" placeholder="e.g. 017XXXXXXXX"></div>
+        <div class="form-group"><label>Partner Type</label><select id="ap-type"><option value="temporary">Temporary (Per Project)</option><option value="investor">Investor</option><option value="agent">Agent / Commission</option></select></div>
+        <div class="form-group full"><label>Linked Projects (select projects this partner is involved in)</label><div id="ap-projects-list" style="display:flex;flex-direction:column;gap:6px;margin-top:4px"></div></div>
+        <div class="form-group full"><label>Notes</label><textarea id="ap-notes" placeholder="Role, investment share, agreement details..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-add-partner')">Cancel</button><button class="btn primary" onclick="saveNewPartner()">Add Partner</button></div>
+  </div>
+</div>
+
+<!-- EDIT PROJECT MODAL -->
+<div class="modal-overlay" id="modal-edit-project">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="edit-proj-title">&#9998; Edit Project</div><button class="close-btn" onclick="closeModal('modal-edit-project')">&#10005;</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="ep-id">
+      <div class="form-grid">
+        <div class="form-group full"><label>Project Name *</label><input type="text" id="ep-name"></div>
+        <div class="form-group full"><label>PO / Work Order Number</label><input type="text" id="ep-po"></div>
+        <div class="form-group"><label>Client / Plant Name</label><input type="text" id="ep-client"></div>
+        <div class="form-group"><label>Location</label><input type="text" id="ep-location"></div>
+        <div class="form-group"><label>Tender Value (&#2547;)</label><input type="number" id="ep-tender"></div>
+        <div class="form-group"><label>Total Profit (&#2547;)</label><input type="number" id="ep-profit"></div>
+        <div class="form-group"><label>Product Cost (&#2547;)</label><input type="number" id="ep-product-cost"></div>
+        <div class="form-group"><label>VAT &amp; Tax (&#2547;)</label><input type="number" id="ep-vat"></div>
+        <div class="form-group"><label>Petty Expenses (&#2547;)</label><input type="number" id="ep-petty"></div>
+        <div class="form-group"><label>Security Deposit (&#2547;)</label><input type="number" id="ep-deposit"></div>
+        <div class="form-group"><label>Cash Received (&#2547;)</label><input type="number" id="ep-received"></div>
+        <div class="form-group"><label>Profit Margin (%)</label><input type="number" id="ep-margin" step="0.01"></div>
+        <div class="form-group"><label>Status</label><select id="ep-status"><option>Ongoing</option><option>Completed</option><option>Bid Submitted</option><option>Planning</option></select></div>
+        <div class="form-group"><label>Project Color</label><select id="ep-color"><option value="green">Green</option><option value="amber">Amber</option><option value="blue">Blue</option><option value="teal">Teal</option></select></div>
+        <div class="form-group">
+          <label>&#128197; Project Handover Date</label>
+          <input type="date" id="ep-handover" onchange="autoCalcRelease('ep')">
+          <span style="font-size:11px;color:var(--text3);margin-top:3px">Security deposit releases exactly 1 year after handover</span>
+        </div>
+        <div class="form-group">
+          <label>&#128274; Security Deposit Release Date <span style="color:var(--greentext);font-size:10px">(auto-calculated)</span></label>
+          <input type="date" id="ep-sd-release" style="color:var(--ambertext)">
+          <span style="font-size:11px;color:var(--text3);margin-top:3px">Edit manually if needed</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn danger" onclick="confirmDeleteProject()" id="ep-delete-btn">&#128465; Delete Project</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="closeModal('modal-edit-project')">Cancel</button>
+        <button class="btn primary" onclick="saveEditProject()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE MODAL -->
+<div class="modal-overlay" id="modal-confirm-delete">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header"><div class="modal-title" style="color:var(--redtext)">&#9888; Confirm Delete</div><button class="close-btn" onclick="closeModal('modal-confirm-delete')">&#10005;</button></div>
+    <div class="modal-body">
+      <div class="alert" style="background:var(--red3);border:1px solid var(--red2);color:var(--redtext);margin-bottom:0"><span>&#9888;</span><div>Are you sure you want to delete project <strong id="delete-proj-name"></strong>? This cannot be undone.</div></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-confirm-delete')">Cancel</button><button class="btn danger" onclick="executeDeleteProject()">Yes, Delete</button></div>
+  </div>
+</div>
+
+<!-- EXPENSE MODAL -->
+<div class="modal-overlay" id="modal-expense">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="modal-expense-title">Add Expense</div><button class="close-btn" onclick="closeModal('modal-expense')">&#10005;</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Project</label><input type="text" id="me-project" readonly></div>
+        <div class="form-group"><label>Type</label><input type="text" id="me-type" readonly></div>
+        <div class="form-group full"><label>Description *</label><input type="text" id="me-desc" placeholder="Item or expense description"></div>
+        <div class="form-group"><label>Date</label><input type="date" id="me-date"></div>
+        <div class="form-group"><label>Amount (&#2547;) *</label><input type="number" id="me-amount" placeholder="0"></div>
+        <div class="form-group"><label>Person</label><input type="text" id="me-person" placeholder="e.g. Tariquzzaman"></div>
+        <div class="form-group"><label>Remarks</label><input type="text" id="me-remarks" placeholder="Optional"></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-expense')">Cancel</button><button class="btn primary" onclick="saveExpense()">Save</button></div>
+  </div>
+</div>
+
+<!-- DEPOSIT MODAL -->
+<div class="modal-overlay" id="modal-deposit">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Add Security Deposit Record</div><button class="close-btn" onclick="closeModal('modal-deposit')">&#10005;</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Project *</label><select id="md-project"><option>Bibiyana Big</option><option>Bibiyana Small</option><option>Shikalbaha</option></select></div>
+        <div class="form-group"><label>Deposit Type</label><select id="md-type"><option>Performance Security</option><option>Tender Security</option><option>Bank Guarantee</option></select></div>
+        <div class="form-group"><label>Amount (&#2547;) *</label><input type="number" id="md-amount" placeholder="0"></div>
+        <div class="form-group"><label>Deposit Date</label><input type="date" id="md-deposit-date"></div>
+        <div class="form-group"><label>Expected Release Date</label><input type="date" id="md-release-date"></div>
+        <div class="form-group"><label>Status</label><select id="md-status"><option>Pending</option><option>Released</option><option>Disputed</option></select></div>
+        <div class="form-group full"><label>Notes (Bank, instrument no., etc.)</label><textarea id="md-notes" placeholder="Bank name, pay order/guarantee number..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-deposit')">Cancel</button><button class="btn primary" onclick="saveDeposit()">Save</button></div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const DATA={
+  projects:[
+    {id:'bibiyana-big',name:'Bibiyana Big',depositStatus:'Pending',fullName:'Procurement of Bently Nevada VMS - Bibiyana-3 400MW CCPP',po:'Bibiyana-3, 400MW CCPP, BPDB, Nabiganj, Habiganj',client:'BPDB',location:'Nabiganj, Habiganj',tenderValue:5230000,totalProfit:954248,productCost:3325107,vatTax:784500,pettyExpenses:166145,totalExpenses:4275752,securityDeposit:523000,cashReceived:431248,status:'Ongoing',color:'green',margin:18.24},
+    {id:'bibiyana-small',name:'Bibiyana Small',depositStatus:'Pending',fullName:'Misc. Control System Accessories - Bibiyana-3 400MW CCPP',po:'PO No. 27.11.3677.454.05.004.25.255',client:'BPDB',location:'Nabiganj, Habiganj',tenderValue:1661705,totalProfit:319660,productCost:1293002,vatTax:0,pettyExpenses:49043,totalExpenses:1342045,securityDeposit:166170,cashReceived:153490,status:'Ongoing',color:'amber',margin:19.23},
+    {id:'shikalbaha',name:'Shikalbaha',depositStatus:'Pending',fullName:'Supply of Vibration Monitoring System - Shikalbaha 225MWCCP',po:'Shikalbaha 225MWCCP',client:'EGCB/PDB',location:'Shikalbaha, Chattogram',tenderValue:1475580,totalProfit:380608,productCost:791500,vatTax:221250,pettyExpenses:15407,totalExpenses:1094972,securityDeposit:147558,cashReceived:233050,status:'Completed',color:'blue',margin:25.79}
+  ],
+  bbProducts:[
+    {sl:1,name:'AC Power Supply',spec:'3500/15-02-02-00',qty:2,from:'UAE/Australia',unitPrice:91814.55,totalCost:207629,tenderPrice:450000,profit:242371},
+    {sl:2,name:'Transient Data Interface',spec:'3500/22-01-01-00',qty:1,from:'UAE',unitPrice:705160,totalCost:705160,tenderPrice:950000,profit:244840},
+    {sl:3,name:'Proximitor Monitor Module',spec:'3500/40-01-00',qty:2,from:'USA/UAE',unitPrice:140000,totalCost:280000,tenderPrice:400000,profit:120000},
+    {sl:4,name:'Temperature Monitor with Barriers',spec:'3500/60-05-00',qty:1,from:'UAE',unitPrice:128100,totalCost:128100,tenderPrice:350000,profit:221900},
+    {sl:5,name:'Keyphasor Module',spec:'3500/25-02-01-00',qty:1,from:'USA',unitPrice:113750,totalCost:113750,tenderPrice:175000,profit:61250},
+    {sl:6,name:'16 Channel Relay Module',spec:'3500/33-01-00',qty:1,from:'USA',unitPrice:198750,totalCost:198750,tenderPrice:275000,profit:76250},
+    {sl:7,name:'Earthing Module',spec:'3500/04',qty:1,from:'UAE',unitPrice:87773,totalCost:87773,tenderPrice:125000,profit:37227},
+    {sl:8,name:'Communication Gateway Module',spec:'3500/92-04-xx-00',qty:1,from:'USA',unitPrice:199750,totalCost:199750,tenderPrice:295000,profit:95250},
+    {sl:9,name:'3300 XL 8mm Reverse Mount Probes',spec:'330105-02-12-10-02-05',qty:12,from:'China',unitPrice:46375,totalCost:556500,tenderPrice:780000,profit:223500},
+    {sl:10,name:'3300 XL 8mm Proximity Probes',spec:'330101-00-20-10-02-05',qty:3,from:'UAE',unitPrice:32940,totalCost:98820,tenderPrice:186000,profit:87180},
+    {sl:11,name:'3300 XL 5/8mm Proximitor Sensor (A)',spec:'330180-51-05',qty:9,from:'UAE/Australia/USA/China',unitPrice:40500,totalCost:364500,tenderPrice:603000,profit:238500},
+    {sl:12,name:'3300 XL 5/8mm Proximitor Sensor (B)',spec:'330180-12-05',qty:3,from:'China',unitPrice:48125,totalCost:144375,tenderPrice:201000,profit:56625},
+    {sl:13,name:'3300 XL Standard Extension Cable',spec:'330130-040-00-05',qty:8,from:'USA',unitPrice:21875,totalCost:175000,tenderPrice:440000,profit:265000},
+    {sl:14,name:'Import & Carrying Goods (UAE/USA/China)',spec:'Logistics',qty:1,from:'N/A',unitPrice:65000,totalCost:65000,tenderPrice:0,profit:0}
+  ],
+  bbPetty:[
+    {sl:1,date:'17-Jun-2024',desc:'Plant Visit 1st',person:'Tariquzzaman',amount:7500},
+    {sl:2,date:'05-Feb-2025',desc:'Tender Document Purchase',person:'Tariquzzaman',amount:2250},
+    {sl:3,date:'17-Feb-2025',desc:'Pay order commission',person:'Bank Account',amount:58},
+    {sl:4,date:'27-Mar-2025',desc:'Pay order commission',person:'Bank Account',amount:158},
+    {sl:5,date:'27-Mar-2025',desc:'Stamp',person:'Tariquzzaman',amount:480},
+    {sl:6,date:'21-Feb-2025',desc:'Vezel Octane',person:'Ahmed',amount:3500},
+    {sl:7,date:'21-Feb-2025',desc:'Breakfast',person:'Ahmed',amount:350},
+    {sl:8,date:'21-Feb-2025',desc:'Lunch',person:'Ahmed',amount:800},
+    {sl:9,date:'21-Feb-2025',desc:'Toll',person:'Ahmed',amount:363},
+    {sl:10,date:'23-Feb-2025',desc:'Train Fare (Up & Down)',person:'Tariquzzaman',amount:2000},
+    {sl:11,date:'23-Feb-2025',desc:'Lunch & others',person:'Tariquzzaman',amount:400},
+    {sl:12,date:'08-Apr-2025',desc:'Rectus Octane',person:'Tariquzzaman',amount:5500},
+    {sl:13,date:'08-Apr-2025',desc:'Lunch',person:'Tariquzzaman',amount:880},
+    {sl:14,date:'08-Apr-2025',desc:'Road Toll',person:'Tariquzzaman',amount:363},
+    {sl:15,date:'21-Jun-2025',desc:'Television (Client gift)',person:'Ahmed',amount:36000},
+    {sl:16,date:'21-Jun-2025',desc:'Octane, Vezel',person:'Ahmed',amount:4000},
+    {sl:17,date:'21-Jun-2025',desc:'Lunch',person:'Tariquzzaman',amount:880},
+    {sl:18,date:'21-Jun-2025',desc:'Road Toll',person:'Tariquzzaman',amount:363},
+    {sl:19,date:'20-Jun-2025',desc:'Scanner',person:'Tariquzzaman',amount:8400},
+    {sl:20,date:'---',desc:'Power Tools',person:'Tariquzzaman',amount:8500},
+    {sl:21,date:'---',desc:'Ayon for purchasing power supply',person:'Tariquzzaman',amount:8400},
+    {sl:22,date:'---',desc:'ROA for Bill',person:'Tariquzzaman',amount:55000},
+    {sl:23,date:'---',desc:'Chief Engineer',person:'Tariquzzaman',amount:20000}
+  ],
+  bsProducts:[
+    {sl:2,name:'Digital Monitoring Relay (Siemens 3UG4633)',qty:1,tenderPrice:39800,purchasePrice:17910,profit:21890,status:'Received'},
+    {sl:3,name:'Bus Module 2x40mm (Siemens 6ES7195-7HB00)',qty:1,tenderPrice:29200,purchasePrice:17010,profit:12190,status:'Received'},
+    {sl:4,name:'Bus Module 80mm (Siemens 6ES7195-7HC00)',qty:1,tenderPrice:60025,purchasePrice:14580,profit:45445,status:'Received'},
+    {sl:5,name:'Bus Module 2xIM153 (Siemens 6ES7195-7HD10)',qty:1,tenderPrice:27000,purchasePrice:11250,profit:15750,status:'Received'},
+    {sl:6,name:'Operation Hour Counter (Siemens 7KT5801)',qty:1,tenderPrice:36735,purchasePrice:12150,profit:24585,status:'Received'},
+    {sl:7,name:'Event Counter (Siemens 7KT5811)',qty:1,tenderPrice:23530,purchasePrice:15030,profit:8500,status:'Received'},
+    {sl:8,name:'Auxiliary Contactor 4NO+4NC (Siemens)',qty:1,tenderPrice:31610,purchasePrice:10209,profit:21401,status:'Received'},
+    {sl:9,name:'Main & Emergency Off Switch (Siemens 3LD2130)',qty:1,tenderPrice:15106,purchasePrice:5670,profit:9436,status:'Received'},
+    {sl:10,name:'Key Switch (Siemens 3SB3000)',qty:1,tenderPrice:9961,purchasePrice:13230,profit:-3269,status:'Received'},
+    {sl:11,name:'Signal Lamp LED 230VAC White (Siemens)',qty:1,tenderPrice:4330,purchasePrice:5760,profit:-1430,status:'Received'},
+    {sl:12,name:'Relay 1xPDT (Phoenix Contact PLC-RSC)',qty:1,tenderPrice:25250,purchasePrice:5220,profit:20030,status:'Received'},
+    {sl:13,name:'1ch Temperature Converter (MTL5573)',qty:1,tenderPrice:45500,purchasePrice:28575,profit:16925,status:'Received'},
+    {sl:14,name:'Enclosure Internal Thermostat (Rittal SK3110)',qty:1,tenderPrice:23865,purchasePrice:10530,profit:13335,status:'Received'},
+    {sl:15,name:'TopTherm Fan & Filter Unit (Rittal SK3241)',qty:1,tenderPrice:65562,purchasePrice:43920,profit:21642,status:'Received'},
+    {sl:16,name:'Universal Light with Motion Detector (Rittal SZ)',qty:1,tenderPrice:67562,purchasePrice:25209,profit:42353,status:'Received'},
+    {sl:17,name:'8CH Relay Board (WAGO RM08R) x4',qty:4,tenderPrice:52500,purchasePrice:8000,profit:44500,status:'Received'},
+    {sl:18,name:'08Ch AI Field Interface Module (UL Automation) x3',qty:3,tenderPrice:301875,purchasePrice:218571,profit:83304,status:'Received'},
+    {sl:19,name:'08Ch AO Field Interface Module (UL Automation) x2',qty:2,tenderPrice:218750,purchasePrice:148028,profit:70722,status:'Received'},
+    {sl:20,name:'16Ch DI Field Interface Module (UL Automation) x5',qty:5,tenderPrice:53760,purchasePrice:42800,profit:10960,status:'Received'},
+    {sl:21,name:'16Ch DO Field Interface Module (UL Automation) x3',qty:3,tenderPrice:143865,purchasePrice:110526,profit:33339,status:'Received'},
+    {sl:22,name:'Prefab Cable for AI RTP Module',qty:1,tenderPrice:17849,purchasePrice:14208,profit:3641,status:'Received'},
+    {sl:23,name:'Prefab Cable for AO RTP Module',qty:1,tenderPrice:17849,purchasePrice:7104,profit:10745,status:'Received'},
+    {sl:24,name:'Prefab Cable for DI RTP Module x2',qty:2,tenderPrice:25500,purchasePrice:31720,profit:-6220,status:'Received'},
+    {sl:25,name:'Prefab Cable for DO RTP Module',qty:1,tenderPrice:23225,purchasePrice:17843,profit:5382,status:'Received'},
+    {sl:26,name:'Diode Oring Unit 40A (UL Automation) x2',qty:2,tenderPrice:35300,purchasePrice:28086,profit:7214,status:'Received'},
+    {sl:27,name:'Fan Failure Detection Module (UL Automation)',qty:1,tenderPrice:47742,purchasePrice:36677,profit:11065,status:'Received'}
+  ],
+  bsPetty:[
+    {sl:2,date:'---',desc:'Tender Document Purchase',person:'Tariquzzaman',amount:1230,remarks:''},
+    {sl:3,date:'---',desc:'Pay order commission',person:'Bank',amount:58,remarks:''},
+    {sl:4,date:'23-Mar-2025',desc:'Pay order commission',person:'Bank',amount:115,remarks:''},
+    {sl:5,date:'24-Mar-2025',desc:'Stamp',person:'Tariquzzaman',amount:440,remarks:'Refundable'},
+    {sl:6,date:'15-Jun-2025',desc:'Goods Import Charges & Carrying cost',person:'---',amount:31200,remarks:''},
+    {sl:7,date:'21-Jun-2025',desc:'Store Tips',person:'---',amount:8000,remarks:''},
+    {sl:8,date:'02-Aug-2025',desc:'Car rent for bill collection',person:'Tariquzzaman',amount:8000,remarks:''},
+    {sl:9,date:'02-Aug-2025',desc:'Lunch plant engineer',person:'Tariquzzaman',amount:6025,remarks:''}
+  ],
+  shItems:[
+    {sl:1,desc:'Vibration Sensor (Accelerometer AM3100T2-Z2, Bently Nevada)',date:'---',amount:160000,category:'Product',remarks:''},
+    {sl:2,desc:'Vibration Display (Model: 1900/65A, Bently Nevada)',date:'---',amount:266500,category:'Product',remarks:''},
+    {sl:3,desc:'Extension Cable & Vibration Sensor (CB2W100-032)',date:'---',amount:365000,category:'Product',remarks:''},
+    {sl:4,desc:'PO for Performance Security',date:'18-Feb-2025',amount:147558,category:'Security Deposit',remarks:'Refundable'},
+    {sl:5,desc:'Tender Document',date:'---',amount:1230,category:'Petty',remarks:''},
+    {sl:6,desc:'PO for Tender Security',date:'---',amount:43058,category:'Security Deposit',remarks:'Refunded'},
+    {sl:7,desc:'Stamp & Contract Book',date:'17-Feb-2025',amount:4500,category:'Petty',remarks:'Accounts of PDB'},
+    {sl:8,desc:'Mr. Avijit (Store)',date:'26-Apr-2025',amount:6005,category:'Petty',remarks:'Store of Shikalbaha'},
+    {sl:9,desc:'Petty Expenses (Conveyance & Others)',date:'29-Apr-2025',amount:15407,category:'Petty',remarks:''},
+    {sl:10,desc:'DD RAO & Chief Engineer',date:'05-May-2025',amount:34500,category:'Admin',remarks:''},
+    {sl:11,desc:'Executive Engineer',date:'06-May-2025',amount:20000,category:'Admin',remarks:''},
+    {sl:12,desc:'15% VAT & AIT on Total Price',date:'06-May-2025',amount:221250,category:'Tax',remarks:''},
+    {sl:13,desc:'Performance Guarantee received back',date:'18-Jul-2025',amount:-147558,category:'Receipt',remarks:'Received June 2025'}
+  ],
+  shReceivables:[{sl:1,desc:'Performance Guarantee',amount:147558,date:'18-Jun-2025',status:'Released'}],
+  partners:{
+    tariquzzaman:{totalHolding:836728,netReceived:-181896,projects:[
+      {sl:1,name:'Shikalbaha 225MWCCP',tender:1475580,profit:380608,holding:147558,received:233050,petty:11937,received2:0,net:-11937},
+      {sl:2,name:'Bibiyana Big',tender:5230000,profit:954248,holding:523000,received:431248,petty:120916,received2:0,net:-120916},
+      {sl:3,name:'Bibiyana Small',tender:1661705,profit:319660,holding:166170,received:153490,petty:49043,received2:0,net:-49043}
+    ]},
+    monzur:{totalHolding:836728,netReceived:251517,projects:[
+      {sl:1,name:'Shikalbaha 225MWCCP',tender:1475580,profit:380608,holding:147558,received:233050,petty:3470,received2:100000,net:96530},
+      {sl:2,name:'Bibiyana Big',tender:5230000,profit:954248,holding:523000,received:431248,petty:45013,received2:200000,net:154987},
+      {sl:3,name:'Bibiyana Small',tender:1661705,profit:319660,holding:166170,received:153490,petty:0,received2:0,net:0}
+    ]},
+    helalur:{totalHolding:836728,netReceived:200000,projects:[
+      {sl:1,name:'Shikalbaha 225MWCCP',tender:1475580,profit:380608,holding:147558,received:233050,petty:0,received2:0,net:0},
+      {sl:2,name:'Bibiyana Big',tender:5230000,profit:954248,holding:523000,received:431248,petty:0,received2:200000,net:200000},
+      {sl:3,name:'Bibiyana Small',tender:1661705,profit:319660,holding:166170,received:153490,petty:0,received2:0,net:0}
+    ]}
+  },
+  deposits:[
+    {id:1,project:'Bibiyana Big',type:'Performance Security',amount:523000,depositDate:'---',releaseDate:'TBD',status:'Pending',notes:'Awaiting project completion & handover'},
+    {id:2,project:'Bibiyana Small',type:'Performance Security',amount:166170,depositDate:'---',releaseDate:'TBD',status:'Pending',notes:'Awaiting completion'},
+    {id:3,project:'Shikalbaha',type:'Performance Security',amount:147558,depositDate:'18-Feb-2025',releaseDate:'18-Jun-2025',status:'Pending',notes:'Performance Guarantee received back June 2025'}
+  ],
+  customProjects:[],customExpenses:[],customDeposits:[],tempPartners:[]
+};
+
+function fmt(n){if(n===undefined||n===null||isNaN(n))return'---';return'\u09F3'+Math.round(n).toLocaleString('en-IN')}
+function fmtn(n){if(n===undefined||n===null||isNaN(n))return'---';return Math.round(n).toLocaleString('en-IN')}
+function daysBetween(s){if(!s||s==='TBD'||s==='---')return null;const d=new Date(s.split('-').length===3?s.includes('-202')||s.includes('-201')?s:s.split('-').reverse().join('-'):s);if(isNaN(d))return null;return Math.round((d-new Date())/86400000)}
+
+const pageTitles={'dashboard':'Dashboard','projects':'All Projects','deposits':'Security Deposits','bibiyana-big':'Bibiyana Big - 400MW CCPP, BPDB','bibiyana-small':'Bibiyana Small - 400MW CCPP, BPDB','shikalbaha':'Shikalbaha 225MWCCP','partners':'Partners Profit & Loss','expenses':'All Expenses','new-project':'Add New Project'};
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const pg=document.getElementById('page-'+id);if(pg)pg.classList.add('active');
+  document.getElementById('page-title').textContent=pageTitles[id]||id;
+  const nb=document.querySelector('[onclick="showPage(\''+id+'\')"]');if(nb)nb.classList.add('active');
+  const fn={dashboard:renderDashboard,projects:renderProjects,deposits:renderDeposits,'bibiyana-big':renderBB,'bibiyana-small':renderBS,shikalbaha:renderSH,partners:renderPartnersPage,expenses:renderExpenses};
+  if(fn[id])fn[id]();
+}
+
+function switchTab(btn,prefix,tab){
+  btn.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');
+  btn.closest('.page').querySelectorAll('.tab-content').forEach(c=>c.style.display='none');
+  const t=document.getElementById(prefix+'-'+tab);if(t)t.style.display='';
+  if(tab==='summary'){const m={bb:renderBBChart,bs:renderBSChart,sh:renderSHChart};if(m[prefix])setTimeout(m[prefix],50);}
+}
+// switchPartner moved to dynamic partner system above
+
+function renderDashboard(){
+  const ps=DATA.projects;
+  document.getElementById('s-tender').textContent=fmt(ps.reduce((a,p)=>a+p.tenderValue,0));
+  document.getElementById('s-profit').textContent=fmt(ps.reduce((a,p)=>a+p.totalProfit,0));
+  document.getElementById('s-deposit').textContent=fmt(ps.reduce((a,p)=>a+p.securityDeposit,0));
+  document.getElementById('s-received').textContent=fmt(ps.reduce((a,p)=>a+p.cashReceived,0));
+  document.getElementById('s-expenses').textContent=fmt(ps.reduce((a,p)=>a+p.totalExpenses,0));
+  document.getElementById('s-petty').textContent=fmt(ps.reduce((a,p)=>a+p.pettyExpenses,0));
+  // Build pending deposits live from projects
+  const projDeps = DATA.projects.map(p => {
+    const base = DATA.deposits.find(d=>d.project===p.name)||{};
+    return {
+      project: p.name, amount: p.securityDeposit,
+      releaseDate: p.sdReleaseDate || base.releaseDate || 'TBD',
+      handoverDate: p.handoverDate || '',
+      status: p.depositStatus || base.status || 'Pending',
+      notes: base.notes || ''
+    };
+  });
+  const pending = [...projDeps, ...DATA.customDeposits].filter(d=>d.status==='Pending');
+  const ud = document.getElementById('upcoming-deposits');
+  if(pending.length===0){
+    ud.innerHTML='<div class="alert green"><span>&#10003;</span><div>No pending security deposits.</div></div>';
+  } else {
+    ud.innerHTML = pending.map(d=>{
+      const days = daysBetween(d.releaseDate);
+      const dt = days===null ? 'Set handover date in project &#8594;' : days<0 ? Math.abs(days)+' days overdue' : days+' days remaining';
+      const cls = days===null ? 'blue' : days<0 ? 'red' : days<90 ? 'amber' : 'green';
+      const hdLine = d.handoverDate
+        ? ' &bull; <span style="color:var(--text3)">Handover: '+d.handoverDate+'</span>'
+        : ' &bull; <span style="color:var(--ambertext)">&#9888; No handover date set</span>';
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)">'
+        +'<div><div style="font-weight:600;color:var(--text);font-size:14px">'+d.project+'</div>'
+        +'<div style="font-size:12px;margin-top:3px">Performance Security'+hdLine+'</div></div>'
+        +'<div style="text-align:right;flex-shrink:0;margin-left:16px">'
+        +'<div style="font-weight:700;color:var(--ambertext);font-size:15px">'+fmt(d.amount)+'</div>'
+        +'<span class="badge '+cls+'" style="margin-top:5px;display:inline-flex">'+dt+'</span>'
+        +'</div></div>';
+    }).join('');
+  }
+    document.getElementById('recent-timeline').innerHTML=[
+    {date:'Aug 2025',title:'Bibiyana Small - Bill Collection',body:'Car hire for bill collection at plant. Tariquzzaman.',color:'amber'},
+    {date:'Jun 2025',title:'Shikalbaha - Performance Guarantee Released',body:'\u09F3147,558 security deposit received back from EGCB/PDB.',color:'green'},
+    {date:'Jun 2025',title:'Bibiyana Big - Goods Delivery',body:'Products delivered from UAE/USA/China to BPDB Nabiganj.',color:'blue'},
+    {date:'Apr 2025',title:'Bibiyana Big - Site Visit',body:'Plant visit at Bibiyana-3 CCPP, Habiganj.',color:'amber'},
+    {date:'Feb 2025',title:'Shikalbaha - Contract Signed',body:'Performance security submitted. Work order activated.',color:'green'}
+  ].map(e=>`<div class="timeline-item"><div class="timeline-dot ${e.color}"></div><div class="timeline-date">${e.date}</div><div class="timeline-title">${e.title}</div><div class="timeline-body">${e.body}</div></div>`).join('');
+  setTimeout(()=>{renderOverviewChart();renderMarginChart();},100);
+}
+
+let oCI,mCI;
+function renderOverviewChart(){
+  if(oCI)oCI.destroy();const ctx=document.getElementById('overviewChart').getContext('2d');
+  oCI=new Chart(ctx,{type:'bar',data:{labels:DATA.projects.map(p=>p.name),datasets:[{label:'Tender Value',data:DATA.projects.map(p=>p.tenderValue),backgroundColor:'#238636'},{label:'Total Expenses',data:DATA.projects.map(p=>p.totalExpenses),backgroundColor:'#f0883e'},{label:'Net Profit',data:DATA.projects.map(p=>p.totalProfit),backgroundColor:'#58a6ff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8b949e',font:{size:11}}}},scales:{x:{ticks:{color:'#8b949e'},grid:{color:'#30363d'}},y:{ticks:{color:'#8b949e',callback:v=>'\u09F3'+(v/1000000).toFixed(1)+'M'},grid:{color:'#30363d'}}}}});
+}
+function renderMarginChart(){
+  if(mCI)mCI.destroy();const ctx=document.getElementById('marginChart').getContext('2d');
+  mCI=new Chart(ctx,{type:'doughnut',data:{labels:DATA.projects.map(p=>p.name+' ('+p.margin.toFixed(1)+'%)'),datasets:[{data:DATA.projects.map(p=>p.totalProfit),backgroundColor:['#238636','#d29922','#1f6feb'],borderWidth:2,borderColor:'#161b22'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{color:'#8b949e',font:{size:11},padding:12}}}}});
+}
+
+function renderProjects(){
+  document.getElementById('proj-grid-all').innerHTML=DATA.projects.map(p=>`<div class="proj-card ${p.color}" onclick="showPage('${p.id}')"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px"><div class="proj-name">${p.name}</div><span class="badge ${p.status==='Completed'?'green':p.status==='Ongoing'?'amber':'blue'}">${p.status}</span></div><div class="proj-po">${p.po}</div><div class="proj-meta"><div class="proj-meta-item"><div class="proj-meta-label">Tender Value</div><div class="proj-meta-value" style="color:var(--greentext)">${fmt(p.tenderValue)}</div></div><div class="proj-meta-item"><div class="proj-meta-label">Net Profit</div><div class="proj-meta-value" style="color:var(--bluetext)">${fmt(p.totalProfit)}</div></div><div class="proj-meta-item"><div class="proj-meta-label">Security Hold</div><div class="proj-meta-value" style="color:var(--ambertext)">${fmt(p.securityDeposit)}</div></div><div class="proj-meta-item"><div class="proj-meta-label">Margin</div><div class="proj-meta-value" style="color:var(--tealtext)">${p.margin.toFixed(1)}%</div></div></div><div class="profit-bar-wrap"><div class="profit-bar-labels"><span>0%</span><span>Profit margin: ${p.margin.toFixed(1)}%</span></div><div class="profit-bar"><div class="profit-bar-fill" style="width:${p.margin}%"></div></div></div><div style="display:flex;gap:6px;margin-top:10px"><button class="btn" style="font-size:11px;padding:4px 10px" onclick="event.stopPropagation();openEditProject('${p.id}')">&#9998; Edit</button></div></div>`).join('');
+  document.getElementById('projects-table-body').innerHTML=DATA.projects.map(p=>`<tr onclick="showPage('${p.id}')" style="cursor:pointer"><td style="font-weight:600;color:var(--text)">${p.name}</td><td style="font-size:12px;color:var(--text3)">${p.po}</td><td class="num">${fmtn(p.tenderValue)}</td><td class="num pos">${fmtn(p.totalProfit)}</td><td class="num hold">${fmtn(p.securityDeposit)}</td><td class="num pos">${fmtn(p.cashReceived)}</td><td class="num neg">${fmtn(p.pettyExpenses)}</td><td style='font-size:12px;color:var(--text3)'>${p.handoverDate||'---'}</td><td style='font-size:12px;color:${p.sdReleaseDate?'var(--ambertext)':'var(--text3)'}'>${p.sdReleaseDate||'---'}</td><td><span class="badge ${p.margin>20?'green':'amber'}">${p.margin.toFixed(1)}%</span></td><td><span class="badge ${p.status==='Completed'?'green':p.status==='Ongoing'?'amber':'blue'}">${p.status}</span></td></tr>`).join('');
+}
+
+function renderDeposits(){
+  // Build live deposit data from projects
+  const projDeposits = DATA.projects.map(p => {
+    const base = DATA.deposits.find(d=>d.project===p.name)||{};
+    const releaseDate = p.sdReleaseDate || base.releaseDate || '';
+    return {
+      id: 'proj_'+p.id,
+      projId: p.id,
+      project: p.name,
+      type: 'Performance Security',
+      amount: p.securityDeposit,
+      handoverDate: p.handoverDate || '',
+      releaseDate: releaseDate,
+      status: p.depositStatus || base.status || 'Pending',  // ONLY changes when user manually saves
+      notes: base.notes || '',
+      color: p.color || 'green'
+    };
+  });
+  const customOnly = DATA.customDeposits.filter(d => !DATA.projects.find(p=>p.name===d.project));
+  const all = [...projDeposits, ...customOnly];
+
+  // Summary stats
+  document.getElementById('dep-total').textContent = fmt(all.reduce((a,d)=>a+d.amount,0));
+  document.getElementById('dep-released').textContent = fmt(all.filter(d=>d.status==='Released').reduce((a,d)=>a+d.amount,0));
+  document.getElementById('dep-pending').textContent = fmt(all.filter(d=>d.status==='Pending').reduce((a,d)=>a+d.amount,0));
+
+  // ── PROJECT DEPOSIT CARDS ──
+  const cardsEl = document.getElementById('deposit-project-cards');
+  cardsEl.innerHTML = '<div class="dep-proj-grid">' + projDeposits.map(d => {
+    const days = daysBetween(d.releaseDate);
+    const daysText = d.status==='Released' ? 'Released' :
+                     !d.releaseDate ? '---' :
+                     days===null ? '---' :
+                     days<0 ? Math.abs(days)+' days overdue' :
+                     days+' days remaining';
+    const daysColor = d.status==='Released' ? 'green' : days===null ? 'blue' : days<0 ? 'red' : days<90 ? 'amber' : 'green';
+    const relDisplay = d.releaseDate || 'Not set';
+    const handoverDisplay = d.handoverDate || 'Not set';
+    const statusBadge = '<span class="badge '+(d.status==='Released'?'green':'amber')+'">'+d.status+'</span>';
+    const daysBadge = d.releaseDate ? '<span class="badge '+daysColor+'" style="margin-left:6px">'+daysText+'</span>' : '<span class="badge blue" style="margin-left:6px">Set handover date below</span>';
+
+    return '<div class="dep-proj-card '+d.color+'">'
+      + '<div class="dp-name">'+d.project+'</div>'
+      + '<div class="dp-amount">'+fmt(d.amount)+'</div>'
+      + '<div class="dp-row"><span class="dp-key">Status</span><span style="display:flex;align-items:center;gap:8px">'+statusBadge+daysBadge+(d.status==='Released'?'<button onclick="toggleDepositStatus(\"'+d.projId+'\")" style="font-size:11px;padding:3px 10px;border-radius:6px;cursor:pointer;border:1px solid var(--amber);background:var(--amber3);color:var(--ambertext);">&#8634; Mark Pending</button>':'<button onclick="toggleDepositStatus(\"'+d.projId+'\")" style="font-size:11px;padding:3px 10px;border-radius:6px;cursor:pointer;border:1px solid var(--green2);background:var(--green3);color:var(--greentext);">&#10003; Mark Released</button>')+'</span></div>'
+      + '<div class="dp-row"><span class="dp-key">Handover Date</span><span class="dp-val '+(d.handoverDate?'':'blue')+'">'+handoverDisplay+'</span></div>'
+      + '<div class="dp-row"><span class="dp-key">Release Date (1 yr)</span><span class="dp-val amber">'+relDisplay+'</span></div>'
+      + '<div class="dp-row"><span class="dp-key">Days Remaining</span><span class="dp-val '+daysColor+'">'+daysText+'</span></div>'
+      // Inline handover date editor
+      + '<div class="handover-inline">'
+      + '<span style="font-size:11px;color:var(--text3);white-space:nowrap">&#128197; Handover:</span>'
+      + '<input type="date" id="hd-'+d.projId+'" value="'+d.handoverDate+'" placeholder="Set handover date">'
+      + '<button class="btn-save" onclick="saveHandoverDate(\''+d.projId+'\')">Save</button>'
+      + '</div>'
+      + '</div>';
+  }).join('') + '</div>';
+
+  // ── TIMELINE ──
+  const tlEl = document.getElementById('deposit-timeline');
+  tlEl.innerHTML = '<div class="timeline">' + all.map(d => {
+    const days = daysBetween(d.releaseDate);
+    const daysText = d.status==='Released' ? 'Released' : days===null ? 'Date TBD' : days<0 ? Math.abs(days)+'d overdue' : days+'d remaining';
+    const dotCls = d.status==='Released' ? 'green' : days!==null && days<90 ? 'amber' : 'blue';
+    const handoverStr = d.handoverDate ? 'Handover: <strong style="color:var(--text2)">'+d.handoverDate+'</strong> &rarr; ' : '';
+    const releaseStr = d.releaseDate ? 'Release: <strong style="color:var(--ambertext)">'+d.releaseDate+'</strong>' : '<span style="color:var(--text3)">Release: TBD</span>';
+    return '<div class="timeline-item">'
+      + '<div class="timeline-dot '+dotCls+'"></div>'
+      + '<div class="timeline-date">'+d.type+' &bull; '+handoverStr+releaseStr+'</div>'
+      + '<div class="timeline-title">'+d.project+'</div>'
+      + '<div class="timeline-body" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
+      + '<span style="font-weight:600;color:var(--ambertext)">'+fmt(d.amount)+'</span>'
+      + '<span class="badge '+(d.status==='Released'?'green':'amber')+'">'+d.status+'</span>'
+      + '<span class="badge '+(days===null?'blue':days<0?'red':days<90?'amber':'green')+'">'+daysText+'</span>'
+      + (d.notes ? '<span style="font-size:11px;color:var(--text3)">'+d.notes+'</span>' : '')
+      + '</div></div>';
+  }).join('') + '</div>';
+
+  // ── TABLE ──
+  document.getElementById('deposits-table').innerHTML = all.map(d => {
+    const days = daysBetween(d.releaseDate);
+    const dt = d.status==='Released' ? 'Released' : days===null ? 'TBD' : days<0 ? Math.abs(days)+'d overdue' : days+'d left';
+    const dayCls = d.status==='Released' ? 'green' : days===null ? 'blue' : days<0 ? 'red' : days<90 ? 'amber' : 'green';
+    const proj = DATA.projects.find(p=>p.name===d.project);
+    const colorAccent = proj ? 'border-left:3px solid var(--'+(proj.color==='green'?'green':proj.color==='amber'?'amber2':proj.color==='blue'?'blue':'teal')+');padding-left:10px' : '';
+    const editBtn = proj ? '<button class="btn" style="font-size:11px;padding:3px 10px" onclick="focusHandoverCard(\''+proj.id+'\')">&#9998; Edit</button>' : '';
+    return '<tr>'
+      + '<td style="font-weight:600;color:var(--text);'+colorAccent+'">'+d.project+'</td>'
+      + '<td><span class="badge blue" style="font-size:11px">'+d.type+'</span></td>'
+      + '<td class="num hold" style="font-weight:600">'+fmtn(d.amount)+'</td>'
+      + '<td style="font-size:12px;color:'+(d.handoverDate?'var(--text)':'var(--text3)')+'">'+( d.handoverDate||'--- Not set')+'</td>'
+      + '<td style="font-size:12px;font-weight:600;color:'+(d.releaseDate?'var(--ambertext)':'var(--text3)')+'">'+( d.releaseDate||'TBD')+'</td>'
+      + '<td><span class="badge '+dayCls+'" style="font-size:11px">'+dt+'</span></td>'
+      + '<td><span class="badge '+(d.status==='Released'?'green':'amber')+'">'+d.status+'</span></td>'
+      + '<td>'+editBtn+'</td>'
+      + '</tr>';
+  }).join('');
+}
+
+// Save handover date inline from deposit card
+function saveHandoverDate(projId){
+  const p = DATA.projects.find(x=>x.id===projId);
+  if(!p) return;
+  const dateVal = document.getElementById('hd-'+projId).value;
+  if(!dateVal){ alert('Please select a handover date.'); return; }
+  p.handoverDate = dateVal;
+  p.sdReleaseDate = calcReleaseDate(dateVal);
+  // Update release date in deposit record — but NEVER touch status
+  const dep = DATA.deposits.find(d=>d.project===p.name);
+  if(dep) dep.releaseDate = p.sdReleaseDate;
+  saveToStorage();
+  renderDeposits();
+  // Flash card green to confirm save
+  setTimeout(()=>{
+    const cards = document.querySelectorAll('#deposit-project-cards .dep-proj-card');
+    cards.forEach(card => {
+      if(card.querySelector('#hd-'+projId)) {
+        card.style.outline='2px solid var(--green)';
+        setTimeout(()=>card.style.outline='',1800);
+      }
+    });
+  }, 80);
+}
+
+// Toggle deposit status manually — ONLY user action changes Pending <-> Released
+function toggleDepositStatus(projId){
+  const p = DATA.projects.find(x=>x.id===projId);
+  if(!p) return;
+  const current = p.depositStatus || 'Pending';
+  const newStatus = current === 'Released' ? 'Pending' : 'Released';
+  // Confirm before marking Released
+  if(newStatus === 'Released'){
+    if(!confirm('Mark "'+p.name+'" security deposit as Released?\n\nThis means you have received the ৳'+Math.round(p.securityDeposit).toLocaleString('en-IN')+' back from the client.')) return;
+  }
+  p.depositStatus = newStatus;
+  // Also update base deposit record status
+  const dep = DATA.deposits.find(d=>d.project===p.name);
+  if(dep) dep.status = newStatus;
+  saveToStorage();
+  renderDeposits();
+  // Update dashboard deposits tracker too
+  const ud = document.getElementById('upcoming-deposits');
+  if(ud) {
+    const projDeps = DATA.projects.map(pr => {
+      const base = DATA.deposits.find(d=>d.project===pr.name)||{};
+      return { project:pr.name, amount:pr.securityDeposit, releaseDate:pr.sdReleaseDate||base.releaseDate||'TBD', handoverDate:pr.handoverDate||'', status:pr.depositStatus||base.status||'Pending', notes:base.notes||'' };
+    });
+  }
+}
+
+// Scroll to and focus the handover input for a project
+function focusHandoverCard(projId){
+  const input = document.getElementById('hd-'+projId);
+  if(input){
+    input.scrollIntoView({behavior:'smooth', block:'center'});
+    setTimeout(()=>{ input.focus(); input.style.borderColor='var(--green)'; setTimeout(()=>input.style.borderColor='var(--amber)',1000); }, 300);
+  }
+}
+
+
+function buildStats(p){
+  const hdInfo = p.handoverDate ? `Handover: ${p.handoverDate}` : 'Handover date not set';
+  const relInfo = p.sdReleaseDate ? `SD Release: ${p.sdReleaseDate}` : 'Release date TBD';
+  return`<div class="stat-card green"><div class="stat-label">Tender Value</div><div class="stat-value">${fmt(p.tenderValue)}</div><div class="stat-sub">${p.client} &bull; ${p.location}</div></div><div class="stat-card blue"><div class="stat-label">Net Profit</div><div class="stat-value">${fmt(p.totalProfit)}</div><div class="stat-sub">Margin: ${p.margin.toFixed(1)}%</div></div><div class="stat-card red"><div class="stat-label">Total Expenses</div><div class="stat-value">${fmt(p.totalExpenses)}</div><div class="stat-sub">Products + Tax + Petty</div></div><div class="stat-card amber"><div class="stat-label">Security Deposit</div><div class="stat-value">${fmt(p.securityDeposit)}</div><div class="stat-sub">${hdInfo}</div></div><div class="stat-card teal"><div class="stat-label">Cash Received</div><div class="stat-value">${fmt(p.cashReceived)}</div><div class="stat-sub">${relInfo}</div></div><div class="stat-card purple"><div class="stat-label">Petty Expenses</div><div class="stat-value">${fmt(p.pettyExpenses)}</div><div class="stat-sub">Travel, fees, misc.</div></div>`}
+function buildFinSummary(rows){return rows.map(([k,v,c])=>`<div class="info-row"><div class="info-key">${k}</div><div class="info-val ${c==='pos'?'pos':c==='neg'?'neg':c==='hold'?'hold':''}">${typeof v==='string'?v:fmt(v)}</div></div>`).join('')}
+
+function renderBB(){
+  const p=DATA.projects.find(x=>x.id==='bibiyana-big');
+  document.getElementById('bb-stats').innerHTML=buildStats(p);
+  document.getElementById('bb-alert').innerHTML='<span>&#128196;</span><div style="font-size:12px">PO: Bently Nevada Vibration Monitoring System &mdash; <strong>Bibiyana-3, 400MW CCPP, BPDB, Nabiganj, Habiganj</strong>. Products sourced from UAE, USA, Australia &amp; China. Tender Value: '+fmt(p.tenderValue)+'</div>';
+  document.getElementById('bb-products-tbody').innerHTML=DATA.bbProducts.map(i=>`<tr><td>${i.sl}</td><td style="color:var(--text)">${i.name}</td><td class="mono">${i.spec}</td><td style="text-align:center">${i.qty}</td><td><span class="badge blue" style="font-size:10px">${i.from}</span></td><td class="num">${i.unitPrice>0?fmtn(i.unitPrice):'---'}</td><td class="num neg">${fmtn(i.totalCost)}</td><td class="num">${i.tenderPrice>0?fmtn(i.tenderPrice):'---'}</td><td class="num ${i.profit>0?'pos':'neg'}">${i.profit!==0?fmtn(i.profit):'---'}</td></tr>`).join('');
+  document.getElementById('bb-petty-tbody').innerHTML=DATA.bbPetty.map(i=>`<tr><td>${i.sl}</td><td>${i.date}</td><td style="color:var(--text)">${i.desc}</td><td><span class="badge purple" style="font-size:10px">${i.person}</span></td><td class="num neg">${fmtn(i.amount)}</td></tr>`).join('');
+  document.getElementById('bb-fin-summary').innerHTML=buildFinSummary([['Tender Value',p.tenderValue,'pos'],['Product Cost',p.productCost,'neg'],['VAT & Tax (15%)',p.vatTax,'neg'],['Petty Expenses',p.pettyExpenses,'neg'],['Total Expenses',p.totalExpenses,'neg'],['Net Profit',p.totalProfit,'pos'],['Security Deposit (Held)',p.securityDeposit,'hold'],['Cash At Hand',p.cashReceived,'pos'],['Profit Margin',p.margin.toFixed(2)+'%','pos']]);
+}
+
+function renderBS(){
+  const p=DATA.projects.find(x=>x.id==='bibiyana-small');
+  document.getElementById('bs-stats').innerHTML=buildStats(p);
+  document.getElementById('bs-products-tbody').innerHTML=DATA.bsProducts.map(i=>`<tr><td>${i.sl}</td><td style="color:var(--text)">${i.name}</td><td style="text-align:center">${i.qty}</td><td class="num">${fmtn(i.tenderPrice)}</td><td class="num neg">${fmtn(i.purchasePrice)}</td><td class="num ${i.profit>=0?'pos':'neg'}">${fmtn(i.profit)}</td><td><span class="badge green" style="font-size:10px">${i.status}</span></td></tr>`).join('');
+  document.getElementById('bs-petty-tbody').innerHTML=DATA.bsPetty.map(i=>`<tr><td>${i.sl}</td><td>${i.date}</td><td style="color:var(--text)">${i.desc}</td><td><span class="badge purple" style="font-size:10px">${i.person}</span></td><td class="num neg">${fmtn(i.amount)}</td><td style="font-size:12px;color:var(--text3)">${i.remarks}</td></tr>`).join('');
+  document.getElementById('bs-fin-summary').innerHTML=buildFinSummary([['Tender Value',p.tenderValue,'pos'],['Product Cost',p.productCost,'neg'],['Petty Expenses',p.pettyExpenses,'neg'],['Total Expenses',p.totalExpenses,'neg'],['Net Profit',p.totalProfit,'pos'],['Security Deposit (Held)',p.securityDeposit,'hold'],['Cash At Hand',p.cashReceived,'pos'],['Profit Margin',p.margin.toFixed(2)+'%','pos']]);
+}
+
+function renderSH(){
+  const p=DATA.projects.find(x=>x.id==='shikalbaha');
+  document.getElementById('sh-stats').innerHTML=buildStats(p);
+  const cc={Product:'blue',Petty:'amber','Security Deposit':'purple',Tax:'red',Admin:'teal',Receipt:'green'};
+  document.getElementById('sh-items-tbody').innerHTML=DATA.shItems.map(i=>`<tr><td>${i.sl}</td><td style="color:var(--text)">${i.desc}</td><td>${i.date}</td><td class="num ${i.amount<0?'pos':'neg'}">${fmt(Math.abs(i.amount))} ${i.amount<0?'&#8617;':''}</td><td><span class="badge ${cc[i.category]||'blue'}" style="font-size:10px">${i.category}</span></td><td style="font-size:12px;color:var(--text3)">${i.remarks}</td></tr>`).join('');
+  document.getElementById('sh-recv-tbody').innerHTML=DATA.shReceivables.map(i=>`<tr><td>${i.sl}</td><td style="color:var(--text)">${i.desc}</td><td class="num pos">${fmtn(i.amount)}</td><td>${i.date}</td><td><span class="badge green">${i.status}</span></td></tr>`).join('');
+  document.getElementById('sh-fin-summary').innerHTML=buildFinSummary([['Tender Value',p.tenderValue,'pos'],['Product Cost',p.productCost,'neg'],['VAT & Tax (15%)',p.vatTax,'neg'],['Petty Expenses',p.pettyExpenses,'neg'],['Total Expenses',p.totalExpenses,'neg'],['Net Profit',p.totalProfit,'pos'],['Security Deposit (Released)',p.securityDeposit,'pos'],['Cash Received',p.cashReceived,'pos'],['Profit Margin',p.margin.toFixed(2)+'%','pos']]);
+}
+
+// ── DYNAMIC PARTNER SYSTEM ──
+function getAllPartners(){
+  // Core permanent partners always first
+  const core = ['tariquzzaman','monzur'];
+  const temp = (DATA.tempPartners||[]).map(p=>p.id);
+  return [...core, ...temp];
+}
+
+function renderPartnersPage(){
+  const all = getAllPartners();
+  const tabsEl = document.getElementById('partner-tabs-container');
+  const panelsEl = document.getElementById('partner-panels-container');
+
+  // Build tabs
+  tabsEl.innerHTML = all.map((id,i)=>{
+    const name = getPartnerDisplayName(id);
+    const isCore = id==='tariquzzaman'||id==='monzur';
+    const tp = (DATA.tempPartners||[]).find(p=>p.id===id);
+    return `<div style="display:flex;align-items:center;gap:4px">
+      <button class="ptab ${i===0?'active':''}" onclick="switchPartner(this,'${id}')">${name}</button>
+      ${!isCore?`<button onclick="removePartner('${id}')" title="Remove partner" style="background:var(--red3);border:1px solid var(--red2);color:var(--redtext);border-radius:50%;width:18px;height:18px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1">&#10005;</button>`:''}
+    </div>`;
+  }).join('');
+
+  // Build panels
+  panelsEl.innerHTML = all.map((id,i)=>{
+    const name = getPartnerDisplayName(id);
+    const isTemp = !(id==='tariquzzaman'||id==='monzur');
+    const tp = (DATA.tempPartners||[]).find(p=>p.id===id);
+    return `<div id="partner-${id}" ${i>0?'style="display:none"':''}>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div>
+          <div style="font-size:15px;font-weight:600;color:var(--text)">${name}</div>
+          ${isTemp?`<span class="badge amber" style="margin-top:3px">Temporary Partner</span> <span style="font-size:11px;color:var(--text3);margin-left:6px">Projects: ${(tp&&tp.projects||[]).join(', ')||'All'}</span>`:'<span class="badge green">Core Partner</span>'}
+        </div>
+      </div>
+      <div class="stats-grid" id="pstats-${id}"></div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">${name} &mdash; Project P&amp;L</div>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>#</th><th>Project</th><th class="num">Tender Value (&#2547;)</th><th class="num">Total Profit (&#2547;)</th><th class="num">Holding (&#2547;)</th><th class="num">Received (&#2547;)</th><th class="num">Petty Exp. (&#2547;)</th><th class="num">Net Received (&#2547;)</th></tr></thead>
+          <tbody id="ptbody-${id}"></tbody>
+        </table></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Render first partner data
+  renderPartners(all[0]);
+}
+
+function getPartnerDisplayName(id){
+  if(id==='tariquzzaman') return 'Tariquzzaman';
+  if(id==='monzur') return 'Monzur Ahmed';
+  const tp = (DATA.tempPartners||[]).find(p=>p.id===id);
+  return tp ? tp.name : id;
+}
+
+function renderPartners(who){
+  const pd = DATA.partners[who];
+  const statsEl = document.getElementById('pstats-'+who);
+  const tbodyEl = document.getElementById('ptbody-'+who);
+  if(!statsEl||!tbodyEl) return;
+
+  if(pd){
+    const tR=pd.projects.reduce((a,r)=>a+(r.received2||r.received||0),0);
+    statsEl.innerHTML=`<div class="stat-card blue"><div class="stat-label">Total Project Profit</div><div class="stat-value">${fmt(pd.projects.reduce((a,r)=>a+r.profit,0))}</div></div><div class="stat-card amber"><div class="stat-label">Total Holding</div><div class="stat-value">${fmt(pd.totalHolding)}</div></div><div class="stat-card green"><div class="stat-label">Amount Received</div><div class="stat-value">${fmt(tR)}</div></div><div class="stat-card ${pd.netReceived<0?'red':'green'}"><div class="stat-label">Net After Expenses</div><div class="stat-value">${fmt(pd.netReceived)}</div></div>`;
+    tbodyEl.innerHTML=pd.projects.map(r=>`<tr><td>${r.sl}</td><td style="font-weight:600;color:var(--text)">${r.name}</td><td class="num">${fmtn(r.tender)}</td><td class="num pos">${fmtn(r.profit)}</td><td class="num hold">${fmtn(r.holding)}</td><td class="num pos">${fmtn(r.received2||r.received)}</td><td class="num neg">${fmtn(r.petty)}</td><td class="num ${r.net>=0?'pos':'neg'}">${fmtn(r.net)}</td></tr>`).join('');
+  } else {
+    // Temp partner — show placeholder rows across all projects
+    const tp = (DATA.tempPartners||[]).find(p=>p.id===who);
+    statsEl.innerHTML=`<div class="stat-card amber"><div class="stat-label">Partner Type</div><div class="stat-value" style="font-size:14px">Temporary</div><div class="stat-sub">${tp?tp.type:''}</div></div><div class="stat-card blue"><div class="stat-label">Phone</div><div class="stat-value" style="font-size:13px">${tp&&tp.phone?tp.phone:'---'}</div></div>`;
+    const linkedProjs = tp&&tp.projects&&tp.projects.length>0 ? DATA.projects.filter(p=>tp.projects.includes(p.name)) : DATA.projects;
+    tbodyEl.innerHTML=linkedProjs.map((p,i)=>`<tr><td>${i+1}</td><td style="font-weight:600;color:var(--text)">${p.name}</td><td class="num">${fmtn(p.tenderValue)}</td><td class="num pos">${fmtn(p.totalProfit)}</td><td class="num hold">${fmtn(p.securityDeposit)}</td><td class="num pos">---</td><td class="num neg">---</td><td class="num" style="color:var(--text3)">Enter manually</td></tr>`).join('');
+    if(tbodyEl.innerHTML==='') tbodyEl.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:20px">No projects linked. Edit partner to assign projects.</td></tr>';
+  }
+}
+
+function switchPartner(btn,p){
+  btn.closest('#partner-tabs-container').querySelectorAll('.ptab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#partner-panels-container > div').forEach(el=>el.style.display='none');
+  const panel=document.getElementById('partner-'+p);if(panel)panel.style.display='';
+  renderPartners(p);
+}
+
+function openAddPartnerModal(){
+  // Populate project checkboxes
+  const list=document.getElementById('ap-projects-list');
+  list.innerHTML=DATA.projects.map(p=>`<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" value="${p.name}" style="width:14px;height:14px"> ${p.name}</label>`).join('');
+  document.getElementById('ap-name').value='';
+  document.getElementById('ap-phone').value='';
+  document.getElementById('ap-notes').value='';
+  document.getElementById('modal-add-partner').classList.add('open');
+}
+
+function saveNewPartner(){
+  const name=document.getElementById('ap-name').value.trim();
+  if(!name){alert('Please enter partner name.');return;}
+  const checked=[...document.querySelectorAll('#ap-projects-list input:checked')].map(c=>c.value);
+  const id='temp_'+name.toLowerCase().replace(/\s+/g,'_')+'_'+Date.now();
+  if(!DATA.tempPartners) DATA.tempPartners=[];
+  DATA.tempPartners.push({
+    id, name,
+    phone:document.getElementById('ap-phone').value,
+    type:document.getElementById('ap-type').value,
+    notes:document.getElementById('ap-notes').value,
+    projects:checked
+  });
+  saveToStorage();
+  closeModal('modal-add-partner');
+  renderPartnersPage();
+  alert('"'+name+'" added as temporary partner.');
+}
+
+function removePartner(id){
+  const tp=(DATA.tempPartners||[]).find(p=>p.id===id);
+  if(!tp)return;
+  if(!confirm('Remove "'+tp.name+'" as temporary partner? Their P&L data will be removed.'))return;
+  DATA.tempPartners=(DATA.tempPartners||[]).filter(p=>p.id!==id);
+  saveToStorage();
+  renderPartnersPage();
+}
+
+// ── EDIT PROJECT ──
+function openEditProject(projId){
+  const p=DATA.projects.find(x=>x.id===projId);
+  if(!p){alert('Project not found.');return;}
+  document.getElementById('ep-id').value=p.id;
+  document.getElementById('ep-name').value=p.name;
+  document.getElementById('ep-po').value=p.po||'';
+  document.getElementById('ep-client').value=p.client||'';
+  document.getElementById('ep-location').value=p.location||'';
+  document.getElementById('ep-tender').value=p.tenderValue||0;
+  document.getElementById('ep-profit').value=p.totalProfit||0;
+  document.getElementById('ep-product-cost').value=p.productCost||0;
+  document.getElementById('ep-vat').value=p.vatTax||0;
+  document.getElementById('ep-petty').value=p.pettyExpenses||0;
+  document.getElementById('ep-deposit').value=p.securityDeposit||0;
+  document.getElementById('ep-received').value=p.cashReceived||0;
+  document.getElementById('ep-margin').value=p.margin||0;
+  document.getElementById('ep-status').value=p.status||'Ongoing';
+  document.getElementById('ep-color').value=p.color||'green';
+  document.getElementById('ep-handover').value=p.handoverDate||'';
+  document.getElementById('ep-sd-release').value=p.sdReleaseDate||'';
+  document.getElementById('edit-proj-title').textContent='Edit Project: '+p.name;
+  // Only allow delete for custom (non-core) projects
+  const isCore=['bibiyana-big','bibiyana-small','shikalbaha'].includes(p.id);
+  document.getElementById('ep-delete-btn').style.display=isCore?'none':'';
+  document.getElementById('modal-edit-project').classList.add('open');
+}
+
+function saveEditProject(){
+  const id=document.getElementById('ep-id').value;
+  const p=DATA.projects.find(x=>x.id===id);
+  if(!p)return;
+  p.name=document.getElementById('ep-name').value;
+  p.po=document.getElementById('ep-po').value;
+  p.client=document.getElementById('ep-client').value;
+  p.location=document.getElementById('ep-location').value;
+  p.tenderValue=parseFloat(document.getElementById('ep-tender').value)||0;
+  p.totalProfit=parseFloat(document.getElementById('ep-profit').value)||0;
+  p.productCost=parseFloat(document.getElementById('ep-product-cost').value)||0;
+  p.vatTax=parseFloat(document.getElementById('ep-vat').value)||0;
+  p.pettyExpenses=parseFloat(document.getElementById('ep-petty').value)||0;
+  p.totalExpenses=p.productCost+p.vatTax+p.pettyExpenses;
+  p.securityDeposit=parseFloat(document.getElementById('ep-deposit').value)||0;
+  p.cashReceived=parseFloat(document.getElementById('ep-received').value)||0;
+  p.margin=parseFloat(document.getElementById('ep-margin').value)||0;
+  p.status=document.getElementById('ep-status').value;
+  p.color=document.getElementById('ep-color').value;
+  p.handoverDate=document.getElementById('ep-handover').value;
+  p.sdReleaseDate=document.getElementById('ep-sd-release').value;
+  // Auto-update matching deposit record release date
+  if(p.sdReleaseDate){
+    const dep=[...DATA.deposits,...DATA.customDeposits].find(d=>d.project===p.name&&d.status==='Pending');
+    if(dep) dep.releaseDate=p.sdReleaseDate;
+  }
+  saveToStorage();
+  closeModal('modal-edit-project');
+  // Refresh current view
+  const activePage=document.querySelector('.page.active');
+  if(activePage){
+    const pid=activePage.id.replace('page-','');
+    const fn={dashboard:renderDashboard,projects:renderProjects,'bibiyana-big':renderBB,'bibiyana-small':renderBS,shikalbaha:renderSH};
+    if(fn[pid])fn[pid]();
+  }
+  alert('Project "'+p.name+'" updated successfully!');
+}
+
+function confirmDeleteProject(){
+  const id=document.getElementById('ep-id').value;
+  const p=DATA.projects.find(x=>x.id===id);
+  if(!p)return;
+  document.getElementById('delete-proj-name').textContent=p.name;
+  document.getElementById('modal-confirm-delete').classList.add('open');
+}
+window._pendingDeleteId=null;
+function confirmDeleteProject(){
+  const id=document.getElementById('ep-id').value;
+  const p=DATA.projects.find(x=>x.id===id);
+  if(!p)return;
+  window._pendingDeleteId=id;
+  document.getElementById('delete-proj-name').textContent=p.name;
+  closeModal('modal-edit-project');
+  document.getElementById('modal-confirm-delete').classList.add('open');
+}
+function executeDeleteProject(){
+  const id=window._pendingDeleteId;
+  if(!id)return;
+  DATA.projects=DATA.projects.filter(x=>x.id!==id);
+  saveToStorage();
+  closeModal('modal-confirm-delete');
+  showPage('projects');
+  alert('Project deleted.');
+}
+
+function renderExpenses(){
+  const ps=DATA.projects;
+  const totProd=ps.reduce((a,p)=>a+p.productCost,0);
+  const totPetty=ps.reduce((a,p)=>a+p.pettyExpenses,0);
+  const totVat=ps.reduce((a,p)=>a+(p.vatTax||0),0);
+  document.getElementById('exp-products').textContent=fmt(totProd);
+  document.getElementById('exp-petty').textContent=fmt(totPetty);
+  document.getElementById('exp-vat').textContent=fmt(totVat);
+  document.getElementById('exp-total').textContent=fmt(totProd+totPetty+totVat);
+  window._allPetty=[
+    ...DATA.bbPetty.map(e=>({...e,project:'Bibiyana Big'})),
+    ...DATA.bsPetty.map(e=>({...e,project:'Bibiyana Small'})),
+    ...DATA.shItems.filter(e=>e.category==='Petty').map(e=>({sl:e.sl,date:e.date,desc:e.desc,person:'---',amount:e.amount,project:'Shikalbaha'}))
+  ];
+  filterExpenses();
+  setTimeout(()=>{
+    let eCI=Chart.getChart('expChart');if(eCI)eCI.destroy();
+    const ctx=document.getElementById('expChart').getContext('2d');
+    new Chart(ctx,{type:'bar',data:{labels:['Bibiyana Big','Bibiyana Small','Shikalbaha'],datasets:[{label:'Product Cost',data:[ps[0].productCost,ps[1].productCost,ps[2].productCost],backgroundColor:'#b62324'},{label:'VAT & Tax',data:[ps[0].vatTax,0,ps[2].vatTax],backgroundColor:'#f0883e'},{label:'Petty Expenses',data:[ps[0].pettyExpenses,ps[1].pettyExpenses,ps[2].pettyExpenses],backgroundColor:'#d29922'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8b949e',font:{size:11}}}},scales:{x:{stacked:true,ticks:{color:'#8b949e'},grid:{color:'#30363d'}},y:{stacked:true,ticks:{color:'#8b949e',callback:v=>'\u09F3'+(v/1000000).toFixed(1)+'M'},grid:{color:'#30363d'}}}}});
+  },50);
+}
+
+function filterExpenses(){
+  const f=document.getElementById('exp-filter').value;
+  const rows=(window._allPetty||[]).filter(e=>f==='all'||e.project===f);
+  document.getElementById('all-expenses-tbody').innerHTML=rows.map(r=>`<tr><td><span class="badge ${r.project==='Bibiyana Big'?'green':r.project==='Bibiyana Small'?'amber':'blue'}" style="font-size:10px">${r.project}</span></td><td>${r.date||'---'}</td><td style="color:var(--text)">${r.desc}</td><td><span class="badge purple" style="font-size:10px">${r.person||'---'}</span></td><td class="num neg">${fmtn(r.amount)}</td></tr>`).join('');
+}
+
+let bbCI,bsCI,shCI;
+function renderBBChart(){if(bbCI)bbCI.destroy();const ctx=document.getElementById('bbChart').getContext('2d');const top=DATA.bbProducts.filter(i=>i.profit>0).sort((a,b)=>b.profit-a.profit).slice(0,7);bbCI=new Chart(ctx,{type:'bar',data:{labels:top.map(i=>i.name.substring(0,22)+'...'),datasets:[{label:'Profit',data:top.map(i=>i.profit),backgroundColor:'#238636'}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#8b949e',callback:v=>'\u09F3'+v.toLocaleString()},grid:{color:'#30363d'}},y:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'#30363d'}}}}});}
+function renderBSChart(){if(bsCI)bsCI.destroy();const ctx=document.getElementById('bsChart').getContext('2d');const top=DATA.bsProducts.sort((a,b)=>b.profit-a.profit).slice(0,8);bsCI=new Chart(ctx,{type:'bar',data:{labels:top.map(i=>i.name.substring(0,24)+'...'),datasets:[{label:'Profit',data:top.map(i=>i.profit),backgroundColor:top.map(i=>i.profit>=0?'#238636':'#b62324')}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#8b949e',callback:v=>'\u09F3'+Math.abs(v).toLocaleString()},grid:{color:'#30363d'}},y:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'#30363d'}}}}});}
+function renderSHChart(){if(shCI)shCI.destroy();const ctx=document.getElementById('shChart').getContext('2d');shCI=new Chart(ctx,{type:'doughnut',data:{labels:['Products','VAT & Tax','Petty Exp','Admin/Misc'],datasets:[{data:[791500,221250,15407,60500],backgroundColor:['#1f6feb','#f0883e','#d29922','#8957e5'],borderWidth:2,borderColor:'#161b22'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'bottom',labels:{color:'#8b949e',font:{size:11}}}}}});}
+
+function openAddExpense(project,type){document.getElementById('me-project').value=project;document.getElementById('me-type').value=type;document.getElementById('modal-expense-title').textContent='Add '+(type==='petty'?'Petty Expense':'Product Item')+' - '+project;document.getElementById('modal-expense').classList.add('open');}
+function saveExpense(){const d={project:document.getElementById('me-project').value,type:document.getElementById('me-type').value,desc:document.getElementById('me-desc').value,date:document.getElementById('me-date').value||'---',amount:parseFloat(document.getElementById('me-amount').value)||0,person:document.getElementById('me-person').value,remarks:document.getElementById('me-remarks').value};if(!d.desc||!d.amount){alert('Please fill description and amount.');return;}DATA.customExpenses.push(d);saveToStorage();const p=DATA.projects.find(x=>x.name===d.project);if(p&&d.type==='petty'){p.pettyExpenses+=d.amount;p.totalExpenses+=d.amount;}closeModal('modal-expense');alert('Expense saved successfully!');}
+function openDepositModal(){document.getElementById('modal-deposit').classList.add('open');}
+function saveDeposit(){const d={id:Date.now(),project:document.getElementById('md-project').value,type:document.getElementById('md-type').value,amount:parseFloat(document.getElementById('md-amount').value)||0,depositDate:document.getElementById('md-deposit-date').value||'---',releaseDate:document.getElementById('md-release-date').value||'TBD',status:document.getElementById('md-status').value,notes:document.getElementById('md-notes').value};DATA.customDeposits.push(d);saveToStorage();closeModal('modal-deposit');renderDeposits();}
+function saveNewProject(){
+  const name=document.getElementById('np-name').value,tender=parseFloat(document.getElementById('np-tender').value)||0;
+  if(!name||!tender){alert('Project Name and Tender Value are required.');return;}
+  const handover=document.getElementById('np-handover').value;
+  const sdRelease=document.getElementById('np-sd-release').value||calcReleaseDate(handover);
+  const p={id:'custom-'+Date.now(),name,po:document.getElementById('np-po').value,client:document.getElementById('np-client').value,location:document.getElementById('np-location').value,tenderValue:tender,totalProfit:0,productCost:0,vatTax:0,pettyExpenses:0,totalExpenses:0,securityDeposit:parseFloat(document.getElementById('np-deposit').value)||0,cashReceived:0,handoverDate:handover,sdReleaseDate:sdRelease,status:document.getElementById('np-status').value,color:'teal',margin:0};DATA.projects.push(p);saveToStorage();if(p.securityDeposit>0)DATA.customDeposits.push({id:Date.now(),project:name,type:'Performance Security',amount:p.securityDeposit,depositDate:document.getElementById('np-contract-date').value||'---',releaseDate:sdRelease||'TBD',status:'Pending',notes:(handover?'Handover: '+handover+'. ':'')+(document.getElementById('np-notes').value||'')});alert('"'+name+'" added successfully!');showPage('projects');}
+function calcReleaseDate(dateStr){
+  if(!dateStr) return '';
+  const d = new Date(dateStr);
+  if(isNaN(d)) return '';
+  d.setFullYear(d.getFullYear()+1);
+  return d.toISOString().split('T')[0];
+}
+function autoCalcRelease(prefix){
+  const handover = document.getElementById(prefix+'-handover').value;
+  const release = calcReleaseDate(handover);
+  if(release){
+    document.getElementById(prefix+'-sd-release').value = release;
+    // Show confirmation
+    const releaseEl = document.getElementById(prefix+'-sd-release');
+    releaseEl.style.borderColor = 'var(--green)';
+    setTimeout(()=>releaseEl.style.borderColor='',2000);
+  }
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+// ── FIREBASE CONFIGURATION ──
+const firebaseConfig = {
+  apiKey: "AIzaSyDse5Y4cqtXQP-YG3FLNxO3srUQ8UU1HXg",
+  authDomain: "green-energy-system-840b1.firebaseapp.com",
+  projectId: "green-energy-system-840b1",
+  storageBucket: "green-energy-system-840b1.firebasestorage.app",
+  messagingSenderId: "528860510434",
+  appId: "1:528860510434:web:7330a045ae0743975f06bb"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const DOC_REF = db.collection('ges').doc('main_data');
+
+// ── SYNC STATUS UI ──
+function showSaveToast(msg, isError){
+  let t = document.getElementById('save-toast');
+  if(!t){
+    t = document.createElement('div');
+    t.id = 'save-toast';
+    t.style.cssText = 'position:fixed;bottom:24px;right:24px;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:500;z-index:9999;opacity:0;transition:opacity 0.3s;pointer-events:none;border:1px solid';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg || '✓ Saved & synced';
+  t.style.background = isError ? 'var(--red3)' : 'var(--green2)';
+  t.style.borderColor = isError ? 'var(--red)' : 'var(--green)';
+  t.style.color = '#fff';
+  t.style.opacity = '1';
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=>{ t.style.opacity='0'; }, 2500);
+}
+
+function setSyncStatus(status){
+  const el = document.getElementById('sync-status');
+  if(!el) return;
+  const icons = {saving:'⏳ Saving...', saved:'✓ Synced', error:'✗ Sync error', loading:'⟳ Loading...'};
+  const colors = {saving:'var(--ambertext)', saved:'var(--greentext)', error:'var(--redtext)', loading:'var(--bluetext)'};
+  el.textContent = icons[status] || status;
+  el.style.color = colors[status] || 'var(--text3)';
+}
+
+// ── BUILD SNAPSHOT FOR FIRESTORE ──
+function buildSnapshot(){
+  return {
+    projects: DATA.projects.map(p=>({
+      id:p.id, name:p.name, po:p.po||'', client:p.client||'', location:p.location||'',
+      tenderValue:p.tenderValue||0, totalProfit:p.totalProfit||0, productCost:p.productCost||0,
+      vatTax:p.vatTax||0, pettyExpenses:p.pettyExpenses||0, totalExpenses:p.totalExpenses||0,
+      securityDeposit:p.securityDeposit||0, cashReceived:p.cashReceived||0, margin:p.margin||0,
+      status:p.status||'Ongoing', color:p.color||'green', notes:p.notes||'',
+      handoverDate:p.handoverDate||'', sdReleaseDate:p.sdReleaseDate||'',
+      depositStatus:p.depositStatus||'Pending'
+    })),
+    deposits: DATA.deposits.map(d=>({id:d.id, project:d.project, status:d.status, releaseDate:d.releaseDate||'', notes:d.notes||''})),
+    customDeposits: DATA.customDeposits,
+    customExpenses: DATA.customExpenses,
+    tempPartners: DATA.tempPartners||[],
+    lastUpdated: new Date().toISOString(),
+    updatedBy: window.GES_USER || 'user'
+  };
+}
+
+// ── SAVE TO FIRESTORE ──
+function saveToStorage(){
+  setSyncStatus('saving');
+  DOC_REF.set(buildSnapshot())
+    .then(()=>{
+      setSyncStatus('saved');
+      showSaveToast('✓ Saved & synced to cloud');
+    })
+    .catch(e=>{
+      setSyncStatus('error');
+      showSaveToast('✗ Sync failed — check internet', true);
+      console.error('Firebase save error:', e);
+      // Fallback: also save locally
+      try { localStorage.setItem('ges_backup', JSON.stringify(buildSnapshot())); } catch(le){}
+    });
+}
+
+// ── MERGE FIRESTORE DATA INTO DATA object ──
+function applySnapshot(saved){
+  if(saved.projects){
+    saved.projects.forEach(sp => {
+      const p = DATA.projects.find(x=>x.id===sp.id);
+      if(p){
+        Object.keys(sp).forEach(k => {
+          if(sp[k]!==undefined && sp[k]!==null && sp[k]!=='') p[k]=sp[k];
+        });
+      } else if(sp.id && (sp.id.startsWith('custom-') || sp.id.startsWith('proj-'))){
+        DATA.projects.push(sp);
+      }
+    });
+  }
+  if(saved.deposits){
+    saved.deposits.forEach(sd=>{
+      const d = DATA.deposits.find(x=>x.id===sd.id);
+      if(d){ d.status=sd.status; if(sd.releaseDate) d.releaseDate=sd.releaseDate; if(sd.notes) d.notes=sd.notes; }
+    });
+  }
+  if(saved.customDeposits) DATA.customDeposits = saved.customDeposits;
+  if(saved.customExpenses) DATA.customExpenses = saved.customExpenses;
+  if(saved.tempPartners) DATA.tempPartners = saved.tempPartners;
+}
+
+// ── REAL-TIME LISTENER — updates UI when other user saves ──
+function startRealtimeSync(){
+  DOC_REF.onSnapshot(doc => {
+    if(!doc.exists) return;
+    const saved = doc.data();
+    // Don't re-apply if we just saved it ourselves
+    if(saved.updatedBy === window.GES_USER && window._justSaved){
+      window._justSaved = false;
+      return;
+    }
+    applySnapshot(saved);
+    // Silently refresh current page
+    const activePage = document.querySelector('.page.active');
+    if(activePage){
+      const pid = activePage.id.replace('page-','');
+      const fn = {dashboard:renderDashboard, projects:renderProjects, deposits:renderDeposits,
+        'bibiyana-big':renderBB, 'bibiyana-small':renderBS, shikalbaha:renderSH,
+        partners:renderPartnersPage, expenses:renderExpenses};
+      if(fn[pid]) fn[pid]();
+    }
+    if(saved.lastUpdated){
+      const t = new Date(saved.lastUpdated);
+      setSyncStatus('saved');
+      const el = document.getElementById('last-sync');
+      if(el) el.textContent = 'Last sync: '+t.toLocaleTimeString();
+    }
+  }, err => {
+    setSyncStatus('error');
+    console.error('Realtime sync error:', err);
+  });
+}
+
+// ── ASK USER IDENTITY ON FIRST LOAD ──
+function initUserIdentity(){
+  const stored = localStorage.getItem('ges_username');
+  if(stored){
+    // Verify saved session hash is still valid
+    const savedHash = localStorage.getItem('ges_auth_'+stored);
+    if(savedHash && savedHash === USER_PASSWORDS[stored]){
+      window.GES_USER = stored;
+      updateUserDisplay();
+      return;
+    }
+    // Hash mismatch — force re-login
+    localStorage.removeItem('ges_username');
+  }
+  document.getElementById('modal-login').classList.add('open');
+}
+
+// Passwords — SHA-256 hashes (never store plain text)
+// Monzur: green2024 | Tariquzzaman: ges@2024
+const USER_PASSWORDS = {
+  'Monzur': 'a8f5f167f44f4964e6c998dee827110c',
+  'Tariquzzaman': '7b774effe4a349c6dd82ad4f4f21d34c'
+};
+
+// Simple hash function (MD5-style for browser, good enough for internal tool)
+async function hashPassword(pwd){
+  const encoder = new TextEncoder();
+  const data = encoder.encode(pwd);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+window._pendingLoginUser = null;
+
+function loginStep2(name){
+  window._pendingLoginUser = name;
+  document.getElementById('login-step1').style.display = 'none';
+  document.getElementById('login-step2').style.display = 'block';
+  document.getElementById('login-username-display').textContent = name;
+  document.getElementById('login-error').style.display = 'none';
+  document.getElementById('login-password').value = '';
+  // Set avatar style
+  const av = document.getElementById('login-avatar');
+  if(name === 'Monzur'){
+    av.style.background='var(--blue3)'; av.style.border='2px solid var(--blue2)';
+    av.style.color='var(--bluetext)'; av.textContent='M';
+  } else {
+    av.style.background='var(--green3)'; av.style.border='2px solid var(--green2)';
+    av.style.color='var(--greentext)'; av.textContent='T';
+  }
+  setTimeout(()=>document.getElementById('login-password').focus(), 100);
+}
+
+function backToStep1(){
+  document.getElementById('login-step1').style.display = 'block';
+  document.getElementById('login-step2').style.display = 'none';
+  window._pendingLoginUser = null;
+}
+
+function togglePwdVisibility(){
+  const input = document.getElementById('login-password');
+  input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+async function doLogin(){
+  const name = window._pendingLoginUser;
+  const pwd = document.getElementById('login-password').value;
+  if(!pwd){ document.getElementById('login-error').style.display='block'; return; }
+  const hash = await hashPassword(pwd);
+  if(hash === USER_PASSWORDS[name]){
+    localStorage.setItem('ges_username', name);
+    localStorage.setItem('ges_auth_'+name, hash);
+    window.GES_USER = name;
+    document.getElementById('modal-login').classList.remove('open');
+    updateUserDisplay();
+    showSaveToast('Welcome, ' + name + '!');
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('login-password').value = '';
+    document.getElementById('login-password').focus();
+  }
+}
+
+function selectUser(name){
+  loginStep2(name);
+}
+
+function updateUserDisplay(){
+  const el = document.getElementById('current-user');
+  if(el) el.textContent = window.GES_USER || '';
+}
+
+function switchUser(){
+  const name = window.GES_USER;
+  if(name) localStorage.removeItem('ges_auth_'+name);
+  localStorage.removeItem('ges_username');
+  window.GES_USER = '';
+  // Reset login screen
+  document.getElementById('login-step1').style.display = 'block';
+  document.getElementById('login-step2').style.display = 'none';
+  document.getElementById('modal-login').classList.add('open');
+}
+
+function clearAllStorage(){
+  if(!confirm('Reset all data to defaults?\n\nThis will clear Firestore + local storage. Cannot be undone.')) return;
+  DOC_REF.delete().then(()=>{ localStorage.clear(); location.reload(); });
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', ()=>{
+  initUserIdentity();
+  setSyncStatus('loading');
+
+  // Load from Firestore first, then render
+  DOC_REF.get().then(doc => {
+    if(doc.exists){
+      applySnapshot(doc.data());
+      const t = doc.data().lastUpdated ? new Date(doc.data().lastUpdated) : null;
+      const el = document.getElementById('last-sync');
+      if(el && t) el.textContent = 'Last sync: '+t.toLocaleTimeString();
+    }
+    renderDashboard();
+    setTimeout(()=>renderDeposits(), 100);
+    setSyncStatus('saved');
+    startRealtimeSync();
+  }).catch(e => {
+    console.warn('Firebase load failed, using defaults:', e);
+    // Fallback to localStorage backup
+    try {
+      const backup = localStorage.getItem('ges_backup');
+      if(backup) applySnapshot(JSON.parse(backup));
+    } catch(le){}
+    renderDashboard();
+    setTimeout(()=>renderDeposits(), 100);
+    setSyncStatus('error');
+  });
+});
+</script>
+<!-- LOGIN MODAL -->
+<div class="modal-overlay open" id="modal-login" style="background:rgba(0,0,0,0.92)">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-header" style="justify-content:center;border-bottom:1px solid var(--border);flex-direction:column;gap:4px;padding:20px">
+      <div style="font-size:30px;margin-bottom:4px">&#9889;</div>
+      <div style="font-size:17px;font-weight:700;color:var(--greentext)">Green Energy System</div>
+      <div style="font-size:11px;color:var(--text3)">M/s. Mohammad Tariquzzaman &bull; Tejgaon, Dhaka</div>
+    </div>
+    <div class="modal-body" style="padding:20px 22px">
+
+      <!-- Step 1: Select user -->
+      <div id="login-step1">
+        <div style="font-size:12px;color:var(--text3);margin-bottom:12px;font-weight:500">SELECT YOUR PROFILE</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <button onclick="loginStep2('Monzur')"
+            style="background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:12px;width:100%"
+            onmouseover="this.style.borderColor='var(--blue)';this.style.background='var(--blue3)'"
+            onmouseout="this.style.borderColor='var(--border2)';this.style.background='var(--bg3)'">
+            <div style="width:40px;height:40px;border-radius:50%;background:var(--blue3);border:2px solid var(--blue2);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--bluetext);flex-shrink:0">M</div>
+            <div>
+              <div style="font-size:14px;font-weight:600;color:var(--text)">Monzur Ahmed</div>
+              <div style="font-size:11px;color:var(--text3)">Core Partner</div>
+            </div>
+          </button>
+          <button onclick="loginStep2('Tariquzzaman')"
+            style="background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:12px;width:100%"
+            onmouseover="this.style.borderColor='var(--green)';this.style.background='var(--green3)'"
+            onmouseout="this.style.borderColor='var(--border2)';this.style.background='var(--bg3)'">
+            <div style="width:40px;height:40px;border-radius:50%;background:var(--green3);border:2px solid var(--green2);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--greentext);flex-shrink:0">T</div>
+            <div>
+              <div style="font-size:14px;font-weight:600;color:var(--text)">Tariquzzaman</div>
+              <div style="font-size:11px;color:var(--text3)">Proprietor</div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Enter password -->
+      <div id="login-step2" style="display:none">
+        <button onclick="backToStep1()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:0;margin-bottom:14px;display:flex;align-items:center;gap:4px">&#8592; Back</button>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <div id="login-avatar" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0"></div>
+          <div>
+            <div id="login-username-display" style="font-size:14px;font-weight:600;color:var(--text)"></div>
+            <div style="font-size:11px;color:var(--text3)">Enter your password</div>
+          </div>
+        </div>
+        <div style="position:relative">
+          <input type="password" id="login-password" placeholder="Password"
+            style="width:100%;font-size:14px;padding:10px 40px 10px 12px;letter-spacing:2px"
+            onkeydown="if(event.key==='Enter')doLogin()">
+          <button onclick="togglePwdVisibility()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px">&#128065;</button>
+        </div>
+        <div id="login-error" style="color:var(--redtext);font-size:12px;margin-top:8px;display:none">&#10005; Incorrect password. Try again.</div>
+        <button onclick="doLogin()" class="btn primary" style="width:100%;margin-top:14px;padding:10px;font-size:14px;justify-content:center">Sign In</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>
