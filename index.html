@@ -229,16 +229,14 @@
     <button class="nav-item" onclick="showPage('projects')"><span class="icon">&#128193;</span> All Projects</button>
     <button class="nav-item" onclick="showPage('deposits')"><span class="icon">&#128274;</span> Security Deposits <span class="nav-badge amber">3</span></button>
   </div>
-  <div class="nav-section">
+  <div class="nav-section" id="sidebar-projects-section">
     <div class="nav-label">Projects</div>
-    <button class="nav-item" onclick="showPage('bibiyana-big')"><span class="icon">&#127981;</span> Bibiyana Big</button>
-    <button class="nav-item" onclick="showPage('bibiyana-small')"><span class="icon">&#127981;</span> Bibiyana Small</button>
-    <button class="nav-item" onclick="showPage('shikalbaha')"><span class="icon">&#127981;</span> Shikalbaha</button>
   </div>
   <div class="nav-section">
     <div class="nav-label">Finance</div>
     <button class="nav-item" onclick="showPage('partners')"><span class="icon">&#128101;</span> Partners P&amp;L</button>
     <button class="nav-item" onclick="showPage('expenses')"><span class="icon">&#128184;</span> All Expenses</button>
+    <button class="nav-item" onclick="showPage('misc-expenditure')"><span class="icon">&#128203;</span> Misc. Expenditure</button>
     <button class="nav-item" onclick="showPage('new-project')"><span class="icon">&#10133;</span> Add New Project</button>
   </div>
   <div class="sidebar-footer">
@@ -297,6 +295,7 @@
       <div class="stat-card teal"><div class="stat-label">Cash Received</div><div class="stat-value" id="s-received">&#2547;0</div><div class="stat-sub">After deductions</div></div>
       <div class="stat-card red"><div class="stat-label">Total Expenses</div><div class="stat-value" id="s-expenses">&#2547;0</div><div class="stat-sub">Product + Tax + Petty</div></div>
       <div class="stat-card purple"><div class="stat-label">Petty Expenses</div><div class="stat-value" id="s-petty">&#2547;0</div><div class="stat-sub">Travel, fees, misc.</div></div>
+      <div class="stat-card" style="border-color:var(--purple2);cursor:pointer" onclick="showPage('misc-expenditure')"><div class="stat-label">Misc. Expenditure</div><div class="stat-value" id="s-misc" style="color:var(--purpletext)">&#2547;0</div><div class="stat-sub" style="color:var(--text3)">Bank, tender, license fees</div></div>
     </div>
     <div class="grid2 mb20">
       <div class="card">
@@ -508,6 +507,32 @@
     </div>
   </div>
 
+  <!-- MISC EXPENDITURE -->
+  <div class="page" id="page-misc-expenditure">
+    <div class="stats-grid" style="grid-template-columns:repeat(4,1fr)">
+      <div class="stat-card purple"><div class="stat-label">Total Misc. Cost</div><div class="stat-value" id="misc-total">&#2547;0</div></div>
+      <div class="stat-card amber"><div class="stat-label">Bank Fees</div><div class="stat-value" id="misc-bank">&#2547;0</div></div>
+      <div class="stat-card blue"><div class="stat-label">Tender &amp; License</div><div class="stat-value" id="misc-tender">&#2547;0</div></div>
+      <div class="stat-card teal"><div class="stat-label">Other Fees</div><div class="stat-value" id="misc-other">&#2547;0</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">&#128203; Miscellaneous Expenditure Register</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <select id="misc-filter-cat" onchange="renderMisc()" style="font-size:12px;padding:4px 8px">
+            <option value="all">All Categories</option>
+          </select>
+          <button class="btn" onclick="openManageCatsModal()" style="font-size:12px">&#9881; Categories</button>
+          <button class="btn primary" onclick="openMiscModal()">&#43; Add Entry</button>
+        </div>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>#</th><th>Date</th><th>Description</th><th>Category</th><th>Project</th><th>Pay To</th><th>Paid By</th><th class="num">Amount (&#2547;)</th><th>Remarks</th><th></th></tr></thead>
+        <tbody id="misc-tbody"></tbody>
+      </table></div>
+    </div>
+  </div>
+
   <!-- NEW PROJECT -->
   <div class="page" id="page-new-project">
     <div class="card" style="max-width:700px">
@@ -656,6 +681,50 @@
   </div>
 </div>
 
+<!-- MISC EXPENDITURE MODAL -->
+<div class="modal-overlay" id="modal-misc">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-header"><div class="modal-title" id="mm-modal-title">&#128203; Add Miscellaneous Expenditure</div><button class="close-btn" onclick="closeModal('modal-misc')">&#10005;</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="mm-edit-id" value="">
+      <div class="form-grid">
+        <div class="form-group full"><label>Description *</label><input type="text" id="mm-desc" placeholder="e.g. Pay order commission for performance security"></div>
+        <div class="form-group"><label>Category *</label>
+          <select id="mm-cat">
+          </select>
+        </div>
+        <div class="form-group"><label>Date</label><input type="date" id="mm-date"></div>
+        <div class="form-group"><label>Amount (&#2547;) *</label><input type="number" id="mm-amount" placeholder="0"></div>
+        <div class="form-group"><label>Related Project</label>
+          <select id="mm-project">
+            <option value="General">General (Not project-specific)</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Pay To (Recipient) *</label><input type="text" id="mm-payto" placeholder="e.g. Bank, DNCC Office, Tender Authority"></div>
+        <div class="form-group"><label>Paid By</label><input type="text" id="mm-person" placeholder="e.g. Tariquzzaman"></div>
+        <div class="form-group full"><label>Remarks</label><input type="text" id="mm-remarks" placeholder="Optional notes"></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('modal-misc')">Cancel</button><button class="btn primary" onclick="saveMisc()">Save</button></div>
+  </div>
+</div>
+
+<!-- MANAGE CATEGORIES MODAL -->
+<div class="modal-overlay" id="modal-manage-cats">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-header"><div class="modal-title">&#9881; Manage Expenditure Categories</div><button class="close-btn" onclick="closeModal('modal-manage-cats')">&#10005;</button></div>
+    <div class="modal-body">
+      <div class="alert blue" style="margin-bottom:14px"><span>&#8505;</span><div style="font-size:12px">Renaming a category will update all existing entries that use it. You cannot delete a category that is in use.</div></div>
+      <div id="cats-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px"></div>
+      <div style="display:flex;gap:8px;border-top:1px solid var(--border);padding-top:14px">
+        <input type="text" id="new-cat-input" placeholder="New category name..." style="flex:1">
+        <button class="btn primary" onclick="addMiscCategory()">&#43; Add</button>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn primary" onclick="closeModal('modal-manage-cats')">Done</button></div>
+  </div>
+</div>
+
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -784,22 +853,43 @@ const DATA={
     {id:2,project:'Bibiyana Small',type:'Performance Security',amount:166170,depositDate:'---',releaseDate:'TBD',status:'Pending',notes:'Awaiting completion'},
     {id:3,project:'Shikalbaha',type:'Performance Security',amount:147558,depositDate:'18-Feb-2025',releaseDate:'18-Jun-2025',status:'Pending',notes:'Performance Guarantee received back June 2025'}
   ],
-  customProjects:[],customExpenses:[],customDeposits:[],tempPartners:[]
+  customProjects:[],customExpenses:[],customDeposits:[],tempPartners:[],miscExpenses:[],
+  miscCategories:['Pay Order Fee','Bank Service Fee','Tender Purchase Fee','License Renew Fee','Stamp / Court Fee','Other']
 };
 
 function fmt(n){if(n===undefined||n===null||isNaN(n))return'---';return'\u09F3'+Math.round(n).toLocaleString('en-IN')}
 function fmtn(n){if(n===undefined||n===null||isNaN(n))return'---';return Math.round(n).toLocaleString('en-IN')}
 function daysBetween(s){if(!s||s==='TBD'||s==='---')return null;const d=new Date(s.split('-').length===3?s.includes('-202')||s.includes('-201')?s:s.split('-').reverse().join('-'):s);if(isNaN(d))return null;return Math.round((d-new Date())/86400000)}
 
-const pageTitles={'dashboard':'Dashboard','projects':'All Projects','deposits':'Security Deposits','bibiyana-big':'Bibiyana Big - 400MW CCPP, BPDB','bibiyana-small':'Bibiyana Small - 400MW CCPP, BPDB','shikalbaha':'Shikalbaha 225MWCCP','partners':'Partners Profit & Loss','expenses':'All Expenses','new-project':'Add New Project'};
+const pageTitles={'dashboard':'Dashboard','projects':'All Projects','deposits':'Security Deposits','bibiyana-big':'Bibiyana Big - 400MW CCPP, BPDB','bibiyana-small':'Bibiyana Small - 400MW CCPP, BPDB','shikalbaha':'Shikalbaha 225MWCCP','partners':'Partners Profit & Loss','expenses':'All Expenses','misc-expenditure':'Miscellaneous Expenditure','new-project':'Add New Project'};
+
+function renderSidebarProjects(){
+  const sec = document.getElementById('sidebar-projects-section');
+  if(!sec) return;
+  const colorIcon = {green:'&#127981;',amber:'&#127981;',blue:'&#127981;',teal:'&#127981;'};
+  const coreIds = ['bibiyana-big','bibiyana-small','shikalbaha'];
+  sec.innerHTML = '<div class="nav-label">Projects</div>'
+    + DATA.projects.map(p => {
+        const icon = colorIcon[p.color]||'&#127981;';
+        return `<button class="nav-item" onclick="showPage('${p.id}')"><span class="icon">${icon}</span> ${p.name}</button>`;
+      }).join('');
+}
 
 function showPage(id){
+  renderSidebarProjects();
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  const pg=document.getElementById('page-'+id);if(pg)pg.classList.add('active');
+  let pg=document.getElementById('page-'+id);
+  if(!pg){
+    const proj=DATA.projects.find(p=>p.id===id);
+    if(proj){
+      pg=document.getElementById('page-projects');
+    }
+  }
+  if(pg)pg.classList.add('active');
   document.getElementById('page-title').textContent=pageTitles[id]||id;
   const nb=document.querySelector('[onclick="showPage(\''+id+'\')"]');if(nb)nb.classList.add('active');
-  const fn={dashboard:renderDashboard,projects:renderProjects,deposits:renderDeposits,'bibiyana-big':renderBB,'bibiyana-small':renderBS,shikalbaha:renderSH,partners:renderPartnersPage,expenses:renderExpenses};
+  const fn={dashboard:renderDashboard,projects:renderProjects,deposits:renderDeposits,'bibiyana-big':renderBB,'bibiyana-small':renderBS,shikalbaha:renderSH,partners:renderPartnersPage,expenses:renderExpenses,'misc-expenditure':renderMisc};
   if(fn[id])fn[id]();
 }
 
@@ -819,6 +909,8 @@ function renderDashboard(){
   document.getElementById('s-received').textContent=fmt(ps.reduce((a,p)=>a+p.cashReceived,0));
   document.getElementById('s-expenses').textContent=fmt(ps.reduce((a,p)=>a+p.totalExpenses,0));
   document.getElementById('s-petty').textContent=fmt(ps.reduce((a,p)=>a+p.pettyExpenses,0));
+  const miscTotal=(DATA.miscExpenses||[]).reduce((a,e)=>a+e.amount,0);
+  document.getElementById('s-misc').textContent=fmt(miscTotal);
   // Build pending deposits live from projects
   const projDeps = DATA.projects.map(p => {
     const base = DATA.deposits.find(d=>d.project===p.name)||{};
@@ -1315,6 +1407,193 @@ function filterExpenses(){
 }
 
 let bbCI,bsCI,shCI;
+
+function getMiscCats(){
+  if(!DATA.miscCategories||!DATA.miscCategories.length)
+    DATA.miscCategories=['Pay Order Fee','Bank Service Fee','Tender Purchase Fee','License Renew Fee','Stamp / Court Fee','Other'];
+  return DATA.miscCategories;
+}
+
+function populateCatDropdowns(selectedVal){
+  const cats=getMiscCats();
+  const opts=cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+  const filterSel=document.getElementById('misc-filter-cat');
+  if(filterSel){
+    const cur=filterSel.value;
+    filterSel.innerHTML='<option value="all">All Categories</option>'+opts;
+    filterSel.value=cats.includes(cur)?cur:'all';
+  }
+  const mmCat=document.getElementById('mm-cat');
+  if(mmCat){
+    mmCat.innerHTML=opts;
+    if(selectedVal&&cats.includes(selectedVal)) mmCat.value=selectedVal;
+  }
+}
+
+function openManageCatsModal(){
+  renderCatsList();
+  document.getElementById('new-cat-input').value='';
+  document.getElementById('modal-manage-cats').classList.add('open');
+}
+
+function renderCatsList(){
+  const cats=getMiscCats();
+  const usedCats=new Set((DATA.miscExpenses||[]).map(e=>e.cat));
+  document.getElementById('cats-list').innerHTML=cats.map((cat,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px 10px">
+      <input type="text" value="${cat}" id="cat-input-${i}" style="flex:1;font-size:13px;background:var(--bg4);border:1px solid var(--border2);border-radius:4px;padding:5px 8px;color:var(--text)">
+      <button onclick="renameCat(${i})" style="background:var(--blue3);border:1px solid var(--blue2);color:var(--bluetext);border-radius:4px;padding:4px 10px;font-size:12px;cursor:pointer;white-space:nowrap">&#10003; Save</button>
+      <button onclick="deleteCat(${i})" ${usedCats.has(cat)?'disabled title="In use — cannot delete" style="opacity:0.4;cursor:not-allowed;':'style="cursor:pointer;'}background:var(--red3);border:1px solid var(--red2);color:var(--redtext);border-radius:4px;padding:4px 8px;font-size:12px">&#128465;</button>
+    </div>`).join('');
+}
+
+function renameCat(i){
+  const newName=document.getElementById('cat-input-'+i).value.trim();
+  if(!newName){alert('Category name cannot be empty.');return;}
+  const cats=getMiscCats();
+  const oldName=cats[i];
+  if(newName===oldName) return;
+  if(cats.includes(newName)){alert('"'+newName+'" already exists.');return;}
+  cats[i]=newName;
+  (DATA.miscExpenses||[]).forEach(e=>{ if(e.cat===oldName) e.cat=newName; });
+  saveToStorage();
+  renderCatsList();
+  populateCatDropdowns();
+  renderMisc();
+  showSaveToast('Category renamed to "'+newName+'"');
+}
+
+function deleteCat(i){
+  const cats=getMiscCats();
+  const name=cats[i];
+  const inUse=(DATA.miscExpenses||[]).some(e=>e.cat===name);
+  if(inUse){alert('"'+name+'" is used by existing entries and cannot be deleted.');return;}
+  if(!confirm('Delete category "'+name+'"?')) return;
+  cats.splice(i,1);
+  saveToStorage();
+  renderCatsList();
+  populateCatDropdowns();
+  renderMisc();
+}
+
+function addMiscCategory(){
+  const val=document.getElementById('new-cat-input').value.trim();
+  if(!val){alert('Please enter a category name.');return;}
+  const cats=getMiscCats();
+  if(cats.includes(val)){alert('"'+val+'" already exists.');return;}
+  cats.push(val);
+  document.getElementById('new-cat-input').value='';
+  saveToStorage();
+  renderCatsList();
+  populateCatDropdowns();
+  showSaveToast('Category "'+val+'" added');
+}
+
+function openMiscModal(editId){
+  const sel = document.getElementById('mm-project');
+  sel.innerHTML = '<option value="General">General (Not project-specific)</option>'
+    + DATA.projects.map(p=>`<option value="${p.name}">${p.name}</option>`).join('');
+  document.getElementById('mm-edit-id').value = editId||'';
+  if(editId){
+    const e=(DATA.miscExpenses||[]).find(x=>x.id===editId);
+    if(!e) return;
+    populateCatDropdowns(e.cat||'');
+    document.getElementById('mm-modal-title').textContent='✏️ Edit Miscellaneous Expenditure';
+    document.getElementById('mm-desc').value=e.desc||'';
+    document.getElementById('mm-date').value=(e.date&&e.date!=='---')?e.date:'';
+    document.getElementById('mm-amount').value=e.amount||0;
+    document.getElementById('mm-project').value=e.project||'General';
+    document.getElementById('mm-payto').value=e.payTo&&e.payTo!=='---'?e.payTo:'';
+    document.getElementById('mm-person').value=e.person&&e.person!=='---'?e.person:'';
+    document.getElementById('mm-remarks').value=e.remarks||'';
+  } else {
+    populateCatDropdowns('');
+    document.getElementById('mm-modal-title').textContent='📋 Add Miscellaneous Expenditure';
+    document.getElementById('mm-desc').value='';
+    document.getElementById('mm-amount').value='';
+    document.getElementById('mm-payto').value='';
+    document.getElementById('mm-person').value='';
+    document.getElementById('mm-remarks').value='';
+    document.getElementById('mm-date').value='';
+  }
+  document.getElementById('modal-misc').classList.add('open');
+}
+
+function saveMisc(){
+  const desc=document.getElementById('mm-desc').value.trim();
+  const amount=parseFloat(document.getElementById('mm-amount').value)||0;
+  if(!desc||!amount){alert('Please fill Description and Amount.');return;}
+  if(!DATA.miscExpenses) DATA.miscExpenses=[];
+  const editId = parseInt(document.getElementById('mm-edit-id').value)||0;
+  const entry = {
+    id: editId||Date.now(),
+    desc,
+    cat:document.getElementById('mm-cat').value,
+    date:document.getElementById('mm-date').value||'---',
+    amount,
+    project:document.getElementById('mm-project').value,
+    payTo:document.getElementById('mm-payto').value||'---',
+    person:document.getElementById('mm-person').value||'---',
+    remarks:document.getElementById('mm-remarks').value
+  };
+  if(editId){
+    const idx=DATA.miscExpenses.findIndex(x=>x.id===editId);
+    if(idx>-1) DATA.miscExpenses[idx]=entry;
+  } else {
+    DATA.miscExpenses.push(entry);
+  }
+  saveToStorage();
+  closeModal('modal-misc');
+  renderMisc();
+  renderDashboard();
+}
+
+function deleteMisc(id){
+  if(!confirm('Delete this entry?')) return;
+  DATA.miscExpenses=(DATA.miscExpenses||[]).filter(e=>e.id!==id);
+  saveToStorage();
+  renderMisc();
+  renderDashboard();
+}
+
+const MISC_BANK_CATS=['Pay Order Fee','Bank Service Fee'];
+const MISC_TENDER_CATS=['Tender Purchase Fee','License Renew Fee'];
+
+function renderMisc(){
+  populateCatDropdowns();
+  const all = DATA.miscExpenses||[];
+  const cat = document.getElementById('misc-filter-cat')?document.getElementById('misc-filter-cat').value:'all';
+  const rows = cat==='all' ? all : all.filter(e=>e.cat===cat);
+
+  const total=all.reduce((a,e)=>a+e.amount,0);
+  const bank=all.filter(e=>MISC_BANK_CATS.includes(e.cat)).reduce((a,e)=>a+e.amount,0);
+  const tender=all.filter(e=>MISC_TENDER_CATS.includes(e.cat)).reduce((a,e)=>a+e.amount,0);
+  const other=all.filter(e=>!MISC_BANK_CATS.includes(e.cat)&&!MISC_TENDER_CATS.includes(e.cat)).reduce((a,e)=>a+e.amount,0);
+
+  document.getElementById('misc-total').textContent=fmt(total);
+  document.getElementById('misc-bank').textContent=fmt(bank);
+  document.getElementById('misc-tender').textContent=fmt(tender);
+  document.getElementById('misc-other').textContent=fmt(other);
+
+  const catColors={'Pay Order Fee':'amber','Bank Service Fee':'amber','Tender Purchase Fee':'blue','License Renew Fee':'blue','Stamp / Court Fee':'teal','Other':'purple'};
+  document.getElementById('misc-tbody').innerHTML = rows.length===0
+    ? '<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:22px">No entries yet. Click "+ Add Entry" to record a miscellaneous expense.</td></tr>'
+    : rows.map((e,i)=>`<tr>
+        <td>${i+1}</td>
+        <td style="font-size:12px;color:var(--text3)">${e.date||'---'}</td>
+        <td style="color:var(--text);font-weight:500">${e.desc}</td>
+        <td><span class="badge ${catColors[e.cat]||'purple'}" style="font-size:10px">${e.cat}</span></td>
+        <td><span class="badge green" style="font-size:10px">${e.project||'General'}</span></td>
+        <td style="font-size:12px;color:var(--bluetext);font-weight:500">${e.payTo||'---'}</td>
+        <td style="font-size:12px">${e.person||'---'}</td>
+        <td class="num neg" style="font-weight:600">${fmtn(e.amount)}</td>
+        <td style="font-size:12px;color:var(--text3)">${e.remarks||''}</td>
+        <td style="display:flex;gap:5px">
+          <button onclick="openMiscModal(${e.id})" style="background:var(--blue3);border:1px solid var(--blue2);color:var(--bluetext);border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer">&#9998; Edit</button>
+          <button onclick="deleteMisc(${e.id})" style="background:var(--red3);border:1px solid var(--red2);color:var(--redtext);border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer">&#128465;</button>
+        </td>
+      </tr>`).join('');
+}
 function renderBBChart(){if(bbCI)bbCI.destroy();const ctx=document.getElementById('bbChart').getContext('2d');const top=DATA.bbProducts.filter(i=>i.profit>0).sort((a,b)=>b.profit-a.profit).slice(0,7);bbCI=new Chart(ctx,{type:'bar',data:{labels:top.map(i=>i.name.substring(0,22)+'...'),datasets:[{label:'Profit',data:top.map(i=>i.profit),backgroundColor:'#238636'}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#8b949e',callback:v=>'\u09F3'+v.toLocaleString()},grid:{color:'#30363d'}},y:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'#30363d'}}}}});}
 function renderBSChart(){if(bsCI)bsCI.destroy();const ctx=document.getElementById('bsChart').getContext('2d');const top=DATA.bsProducts.sort((a,b)=>b.profit-a.profit).slice(0,8);bsCI=new Chart(ctx,{type:'bar',data:{labels:top.map(i=>i.name.substring(0,24)+'...'),datasets:[{label:'Profit',data:top.map(i=>i.profit),backgroundColor:top.map(i=>i.profit>=0?'#238636':'#b62324')}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#8b949e',callback:v=>'\u09F3'+Math.abs(v).toLocaleString()},grid:{color:'#30363d'}},y:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'#30363d'}}}}});}
 function renderSHChart(){if(shCI)shCI.destroy();const ctx=document.getElementById('shChart').getContext('2d');shCI=new Chart(ctx,{type:'doughnut',data:{labels:['Products','VAT & Tax','Petty Exp','Admin/Misc'],datasets:[{data:[791500,221250,15407,60500],backgroundColor:['#1f6feb','#f0883e','#d29922','#8957e5'],borderWidth:2,borderColor:'#161b22'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'bottom',labels:{color:'#8b949e',font:{size:11}}}}}});}
@@ -1405,6 +1684,8 @@ function buildSnapshot(){
     deposits: DATA.deposits.map(d=>({id:d.id, project:d.project, status:d.status, releaseDate:d.releaseDate||'', notes:d.notes||''})),
     customDeposits: DATA.customDeposits,
     customExpenses: DATA.customExpenses,
+    miscExpenses: DATA.miscExpenses||[],
+    miscCategories: DATA.miscCategories||[],
     tempPartners: DATA.tempPartners||[],
     lastUpdated: new Date().toISOString(),
     updatedBy: window.GES_USER || 'user'
@@ -1450,6 +1731,8 @@ function applySnapshot(saved){
   }
   if(saved.customDeposits) DATA.customDeposits = saved.customDeposits;
   if(saved.customExpenses) DATA.customExpenses = saved.customExpenses;
+  if(saved.miscExpenses) DATA.miscExpenses = saved.miscExpenses;
+  if(saved.miscCategories&&saved.miscCategories.length) DATA.miscCategories = saved.miscCategories;
   if(saved.tempPartners) DATA.tempPartners = saved.tempPartners;
 }
 
@@ -1464,13 +1747,14 @@ function startRealtimeSync(){
       return;
     }
     applySnapshot(saved);
+    renderSidebarProjects();
     // Silently refresh current page
     const activePage = document.querySelector('.page.active');
     if(activePage){
       const pid = activePage.id.replace('page-','');
       const fn = {dashboard:renderDashboard, projects:renderProjects, deposits:renderDeposits,
         'bibiyana-big':renderBB, 'bibiyana-small':renderBS, shikalbaha:renderSH,
-        partners:renderPartnersPage, expenses:renderExpenses};
+        partners:renderPartnersPage, expenses:renderExpenses, 'misc-expenditure':renderMisc};
       if(fn[pid]) fn[pid]();
     }
     if(saved.lastUpdated){
@@ -1608,6 +1892,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       if(el && t) el.textContent = 'Last sync: '+t.toLocaleTimeString();
     }
     renderDashboard();
+    renderSidebarProjects();
     setTimeout(()=>renderDeposits(), 100);
     setSyncStatus('saved');
     startRealtimeSync();
@@ -1619,6 +1904,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       if(backup) applySnapshot(JSON.parse(backup));
     } catch(le){}
     renderDashboard();
+    renderSidebarProjects();
     setTimeout(()=>renderDeposits(), 100);
     setSyncStatus('error');
   });
