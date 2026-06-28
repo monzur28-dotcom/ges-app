@@ -1722,19 +1722,33 @@ function startRealtimeSync(){
 
 // ── ASK USER IDENTITY ON FIRST LOAD ──
 function initUserIdentity(){
+  // Always show login modal on every page load — no auto-login bypass
+  // Clear any stale session so user must always authenticate
   const stored = localStorage.getItem('ges_username');
-  if(stored){
-    // Verify saved session hash is still valid
-    const savedHash = localStorage.getItem('ges_auth_'+stored);
-    if(savedHash && savedHash === USER_PASSWORDS[stored]){
-      window.GES_USER = stored;
-      updateUserDisplay();
-      return;
+  // Pre-fill username display if known, but always require password
+  if(stored && USER_PASSWORDS[stored]){
+    // Go straight to step 2 for that user (still needs password)
+    window._pendingLoginUser = stored;
+    document.getElementById('login-step1').style.display = 'none';
+    document.getElementById('login-step2').style.display = 'block';
+    document.getElementById('login-username-display').textContent = stored;
+    document.getElementById('login-error').style.display = 'none';
+    document.getElementById('login-password').value = '';
+    const av = document.getElementById('login-avatar');
+    if(stored === 'Monzur'){
+      av.style.background='var(--blue3)'; av.style.border='2px solid var(--blue2)';
+      av.style.color='var(--bluetext)'; av.textContent='M';
+    } else {
+      av.style.background='var(--green3)'; av.style.border='2px solid var(--green2)';
+      av.style.color='var(--greentext)'; av.textContent='T';
     }
-    // Hash mismatch — force re-login
-    localStorage.removeItem('ges_username');
   }
+  // Always show the login modal
   document.getElementById('modal-login').classList.add('open');
+  // Clear saved session — must re-authenticate
+  localStorage.removeItem('ges_username');
+  localStorage.removeItem('ges_auth_Monzur');
+  localStorage.removeItem('ges_auth_Tariquzzaman');
 }
 
 // Passwords — SHA-256 hashes (never store plain text)
@@ -1791,12 +1805,15 @@ async function doLogin(){
   if(!pwd){ document.getElementById('login-error').style.display='block'; return; }
   const hash = await hashPassword(pwd);
   if(hash === USER_PASSWORDS[name]){
-    localStorage.setItem('ges_username', name);
-    localStorage.setItem('ges_auth_'+name, hash);
+    // Store in memory only — next page load will always require login
     window.GES_USER = name;
     document.getElementById('modal-login').classList.remove('open');
     updateUserDisplay();
     showSaveToast('Welcome, ' + name + '!');
+    // Reset step 1 for next time Switch is used
+    document.getElementById('login-step1').style.display = 'block';
+    document.getElementById('login-step2').style.display = 'none';
+    window._pendingLoginUser = null;
   } else {
     document.getElementById('login-error').style.display = 'block';
     document.getElementById('login-password').value = '';
@@ -1814,13 +1831,12 @@ function updateUserDisplay(){
 }
 
 function switchUser(){
-  const name = window.GES_USER;
-  if(name) localStorage.removeItem('ges_auth_'+name);
-  localStorage.removeItem('ges_username');
   window.GES_USER = '';
-  // Reset login screen
+  window._pendingLoginUser = null;
   document.getElementById('login-step1').style.display = 'block';
   document.getElementById('login-step2').style.display = 'none';
+  document.getElementById('login-password').value = '';
+  document.getElementById('login-error').style.display = 'none';
   document.getElementById('modal-login').classList.add('open');
 }
 
@@ -1862,7 +1878,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 });
 </script>
 <!-- LOGIN MODAL -->
-<div class="modal-overlay open" id="modal-login" style="background:rgba(0,0,0,0.92)">
+<div class="modal-overlay" id="modal-login" style="background:rgba(0,0,0,0.92)">
   <div class="modal" style="max-width:380px">
     <div class="modal-header" style="justify-content:center;border-bottom:1px solid var(--border);flex-direction:column;gap:4px;padding:20px">
       <div style="font-size:30px;margin-bottom:4px">&#9889;</div>
