@@ -468,6 +468,41 @@
     </div>
   </div>
 
+  <!-- DYNAMIC CUSTOM PROJECT PAGE (structure mirrors Bibiyana Big) -->
+  <div class="page" id="page-custom-project">
+    <div class="stats-grid" id="cp-stats"></div>
+    <div class="alert blue" id="cp-alert"></div>
+    <div class="tabs">
+      <button class="tab active" id="cp-tab-products" onclick="switchTab(this,'cp','products')">Products (0)</button>
+      <button class="tab" onclick="switchTab(this,'cp','petty')">Petty Expenses</button>
+      <button class="tab" onclick="switchTab(this,'cp','summary')">Financial Summary</button>
+    </div>
+    <div id="cp-products" class="tab-content">
+      <div class="card">
+        <div class="card-header"><div class="card-title" id="cp-products-title">Product Cost Breakdown</div><div style="display:flex;gap:6px"><button class="btn" style="font-size:12px" id="cp-edit-btn" onclick="">&#9998; Edit Project</button><button class="btn" id="cp-add-item-btn" onclick="">+ Add Item</button></div></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>#</th><th>Item Description</th><th>Spec / Part No.</th><th>Qty</th><th>Source</th><th class="num">Unit Price (&#2547;)</th><th class="num">Total Cost (&#2547;)</th><th class="num">Tender Price (&#2547;)</th><th class="num">Profit (&#2547;)</th><th></th></tr></thead>
+          <tbody id="cp-products-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+    <div id="cp-petty" class="tab-content" style="display:none">
+      <div class="card">
+        <div class="card-header"><div class="card-title" id="cp-petty-title">Petty Expenses</div><button class="btn" id="cp-add-petty-btn" onclick="">+ Add Expense</button></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>#</th><th>Date</th><th>Description</th><th>Person</th><th class="num">Amount (&#2547;)</th><th></th></tr></thead>
+          <tbody id="cp-petty-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+    <div id="cp-summary" class="tab-content" style="display:none">
+      <div class="grid2">
+        <div class="card"><div class="card-header"><div class="card-title">Financial Summary</div></div><div class="card-body" id="cp-fin-summary"></div></div>
+        <div class="card"><div class="card-header"><div class="card-title">Top Profit Items</div></div><div class="card-body"><div class="chart-container"><canvas id="cpChart" role="img" aria-label="Project profit chart">Chart</canvas></div></div></div>
+      </div>
+    </div>
+  </div>
+
   <!-- PARTNERS -->
   <div class="page" id="page-partners">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;gap:12px">
@@ -650,10 +685,20 @@
   <div class="modal">
     <div class="modal-header"><div class="modal-title" id="modal-expense-title">Add Expense</div><button class="close-btn" onclick="closeModal('modal-expense')">&#10005;</button></div>
     <div class="modal-body">
+      <input type="hidden" id="me-edit-id">
       <div class="form-grid">
         <div class="form-group"><label>Project</label><input type="text" id="me-project" readonly></div>
         <div class="form-group"><label>Type</label><input type="text" id="me-type" readonly></div>
         <div class="form-group full"><label>Description *</label><input type="text" id="me-desc" placeholder="Item or expense description"></div>
+        <div class="form-group full" id="me-product-fields" style="display:none">
+          <div class="form-grid" style="margin:0">
+            <div class="form-group"><label>Spec / Part No.</label><input type="text" id="me-spec" placeholder="e.g. 3500/42M"></div>
+            <div class="form-group"><label>Qty</label><input type="number" id="me-qty" placeholder="1" value="1"></div>
+            <div class="form-group"><label>Source</label><input type="text" id="me-source" placeholder="e.g. UAE, USA, China"></div>
+            <div class="form-group"><label>Unit Price (&#2547;)</label><input type="number" id="me-unitprice" placeholder="0"></div>
+            <div class="form-group"><label>Tender Price (&#2547;)</label><input type="number" id="me-tenderprice" placeholder="0"></div>
+          </div>
+        </div>
         <div class="form-group"><label>Date</label><input type="date" id="me-date"></div>
         <div class="form-group"><label>Amount (&#2547;) *</label><input type="number" id="me-amount" placeholder="0"></div>
         <div class="form-group"><label>Person</label><input type="text" id="me-person" placeholder="e.g. Tariquzzaman"></div>
@@ -865,19 +910,21 @@ function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   let pg=document.getElementById('page-'+id);
-  if(!pg&&DATA.projects.find(p=>p.id===id)) pg=document.getElementById('page-projects');
+  const customProj=!pg?DATA.projects.find(p=>p.id===id):null;
+  if(customProj){pg=document.getElementById('page-custom-project');window._activeCustomProj=id;}
   if(pg)pg.classList.add('active');
-  document.getElementById('page-title').textContent=pageTitles[id]||id;
+  document.getElementById('page-title').textContent=pageTitles[id]||(customProj?customProj.name+(customProj.client?' - '+customProj.client:''):id);
   const nb=document.querySelector('[onclick="showPage(\''+id+'\')"]');if(nb)nb.classList.add('active');
   const fn={dashboard:renderDashboard,projects:renderProjects,deposits:renderDeposits,'bibiyana-big':renderBB,'bibiyana-small':renderBS,shikalbaha:renderSH,partners:renderPartnersPage,expenses:renderExpenses,'misc-exp':renderMiscExp};
   if(fn[id])fn[id]();
+  else if(customProj)renderCustomProject(id);
 }
 
 function switchTab(btn,prefix,tab){
   btn.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');
   btn.closest('.page').querySelectorAll('.tab-content').forEach(c=>c.style.display='none');
   const t=document.getElementById(prefix+'-'+tab);if(t)t.style.display='';
-  if(tab==='summary'){const m={bb:renderBBChart,bs:renderBSChart,sh:renderSHChart};if(m[prefix])setTimeout(m[prefix],50);}
+  if(tab==='summary'){const m={bb:renderBBChart,bs:renderBSChart,sh:renderSHChart,cp:renderCPChart};if(m[prefix])setTimeout(m[prefix],50);}
 }
 // switchPartner moved to dynamic partner system above
 
@@ -1137,6 +1184,96 @@ function renderSH(){
   document.getElementById('sh-fin-summary').innerHTML=buildFinSummary([['Tender Value',p.tenderValue,'pos'],['Product Cost',p.productCost,'neg'],['VAT & Tax (15%)',p.vatTax,'neg'],['Petty Expenses',p.pettyExpenses,'neg'],['Total Expenses',p.totalExpenses,'neg'],['Net Profit',p.totalProfit,'pos'],['Security Deposit (Released)',p.securityDeposit,'pos'],['Cash Received',p.cashReceived,'pos'],['Profit Margin',p.margin.toFixed(2)+'%','pos']]);
 }
 
+// ── DYNAMIC CUSTOM PROJECT PAGE (Bibiyana Big structure) ──
+const STATIC_PROJECT_IDS=['bibiyana-big','bibiyana-small','shikalbaha'];
+function isCustomProjectId(id){return !STATIC_PROJECT_IDS.includes(id);}
+function getCustomProducts(p){return DATA.customExpenses.filter(e=>e.project===p.name&&e.type==='product');}
+function getCustomPetty(p){return DATA.customExpenses.filter(e=>e.project===p.name&&e.type==='petty');}
+
+function recalcCustomProject(p){
+  const prods=getCustomProducts(p), petty=getCustomPetty(p);
+  p.pettyExpenses=petty.reduce((a,i)=>a+(i.amount||0),0);
+  p.productCost=prods.reduce((a,i)=>a+(i.totalCost||i.amount||0),0);
+  p.totalExpenses=p.productCost+(p.vatTax||0)+p.pettyExpenses;
+  if(prods.length>0){
+    const gross=prods.reduce((a,i)=>a+(i.profit||0),0);
+    p.totalProfit=gross-p.pettyExpenses-(p.vatTax||0);
+  }
+  p.margin=p.tenderValue>0?(p.totalProfit/p.tenderValue*100):0;
+}
+
+function ensureExpenseIds(){let seq=Date.now();DATA.customExpenses.forEach(e=>{if(!e.id)e.id=seq++;});}
+function expenseActionBtns(id){return `<td style="white-space:nowrap"><button onclick="openEditExpense(${id})" title="Edit" style="font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:var(--bg3,transparent);color:var(--bluetext);margin-right:4px">&#9998;</button><button onclick="deleteExpense(${id})" title="Delete" style="font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer;border:1px solid var(--red2);background:var(--red3);color:var(--redtext)">&#128465;</button></td>`;}
+
+function renderCustomProject(projId){
+  const p=DATA.projects.find(x=>x.id===projId);
+  if(!p)return;
+  window._activeCustomProj=projId;
+  ensureExpenseIds();
+  recalcCustomProject(p);
+  const prods=getCustomProducts(p), petty=getCustomPetty(p);
+  document.getElementById('cp-stats').innerHTML=buildStats(p);
+  document.getElementById('cp-alert').innerHTML='<span>&#128196;</span><div style="font-size:12px">PO: '+(p.po||'---')+' &mdash; <strong>'+p.name+(p.client?', '+p.client:'')+(p.location?', '+p.location:'')+'</strong>. '+(p.notes?p.notes+' ':'')+'Tender Value: '+fmt(p.tenderValue)+'</div>';
+  document.getElementById('cp-tab-products').textContent='Products ('+prods.length+')';
+  document.getElementById('cp-products-title').textContent='Product Cost Breakdown \u2014 '+p.name;
+  document.getElementById('cp-petty-title').textContent='Petty Expenses \u2014 '+(p.location||p.name);
+  document.getElementById('cp-edit-btn').setAttribute('onclick',"openEditProject('"+p.id+"')");
+  document.getElementById('cp-add-item-btn').setAttribute('onclick',"openAddExpense('"+p.name.replace(/'/g,"\\'")+"','product')");
+  document.getElementById('cp-add-petty-btn').setAttribute('onclick',"openAddExpense('"+p.name.replace(/'/g,"\\'")+"','petty')");
+  document.getElementById('cp-products-tbody').innerHTML=prods.length?prods.map((i,ix)=>`<tr><td>${ix+1}</td><td style="color:var(--text)">${i.desc}</td><td class="mono">${i.spec||'---'}</td><td style="text-align:center">${i.qty||1}</td><td><span class="badge blue" style="font-size:10px">${i.source||'---'}</span></td><td class="num">${i.unitPrice>0?fmtn(i.unitPrice):'---'}</td><td class="num neg">${fmtn(i.totalCost||i.amount)}</td><td class="num">${i.tenderPrice>0?fmtn(i.tenderPrice):'---'}</td><td class="num ${(i.profit||0)>=0?'pos':'neg'}">${i.profit!==undefined&&i.profit!==0?fmtn(i.profit):'---'}</td>${expenseActionBtns(i.id)}</tr>`).join(''):'<tr><td colspan="10" style="text-align:center;color:var(--text3);padding:24px">No product items yet. Click "+ Add Item" to start.</td></tr>';
+  document.getElementById('cp-petty-tbody').innerHTML=petty.length?petty.map((i,ix)=>`<tr><td>${ix+1}</td><td>${i.date||'---'}</td><td style="color:var(--text)">${i.desc}</td><td><span class="badge purple" style="font-size:10px">${i.person||'---'}</span></td><td class="num neg">${fmtn(i.amount)}</td>${expenseActionBtns(i.id)}</tr>`).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:24px">No petty expenses yet. Click "+ Add Expense" to start.</td></tr>';
+  document.getElementById('cp-fin-summary').innerHTML=buildFinSummary([['Tender Value',p.tenderValue,'pos'],['Product Cost',p.productCost,'neg'],['VAT & Tax',p.vatTax||0,'neg'],['Petty Expenses',p.pettyExpenses,'neg'],['Total Expenses',p.totalExpenses,'neg'],['Net Profit',p.totalProfit,'pos'],['Security Deposit (Held)',p.securityDeposit,'hold'],['Cash At Hand',p.cashReceived,'pos'],['Profit Margin',(p.margin||0).toFixed(2)+'%','pos']]);
+}
+
+function openEditExpense(id){
+  const e=DATA.customExpenses.find(x=>x.id===id);
+  if(!e){alert('Entry not found.');return;}
+  document.getElementById('me-edit-id').value=id;
+  document.getElementById('me-project').value=e.project;
+  document.getElementById('me-type').value=e.type;
+  document.getElementById('me-desc').value=e.desc||'';
+  document.getElementById('me-date').value=(e.date&&e.date!=='---')?e.date:'';
+  document.getElementById('me-amount').value=e.amount||'';
+  document.getElementById('me-person').value=e.person||'';
+  document.getElementById('me-remarks').value=e.remarks||'';
+  const proj=DATA.projects.find(x=>x.name===e.project);
+  const showProd=e.type==='product'&&proj&&isCustomProjectId(proj.id);
+  document.getElementById('me-product-fields').style.display=showProd?'':'none';
+  if(showProd){
+    document.getElementById('me-spec').value=e.spec||'';
+    document.getElementById('me-qty').value=e.qty||1;
+    document.getElementById('me-source').value=e.source||'';
+    document.getElementById('me-unitprice').value=e.unitPrice||'';
+    document.getElementById('me-tenderprice').value=e.tenderPrice||'';
+  }
+  document.getElementById('modal-expense-title').textContent='Edit '+(e.type==='petty'?'Petty Expense':'Product Item')+' - '+e.project;
+  document.getElementById('modal-expense').classList.add('open');
+}
+
+function deleteExpense(id){
+  const e=DATA.customExpenses.find(x=>x.id===id);
+  if(!e)return;
+  if(!confirm('Delete "'+(e.desc||'this entry')+'" ('+fmt(e.amount)+')? This cannot be undone.'))return;
+  DATA.customExpenses=DATA.customExpenses.filter(x=>x.id!==id);
+  const p=DATA.projects.find(x=>x.name===e.project);
+  if(p&&isCustomProjectId(p.id)){recalcCustomProject(p);}
+  else if(p&&e.type==='petty'){p.pettyExpenses-=e.amount;p.totalExpenses-=e.amount;}
+  saveToStorage();
+  if(window._activeCustomProj&&document.getElementById('page-custom-project').classList.contains('active'))renderCustomProject(window._activeCustomProj);
+  showSaveToast('Entry deleted.');
+}
+
+let cpCI;
+function renderCPChart(){
+  const p=DATA.projects.find(x=>x.id===window._activeCustomProj);
+  if(!p)return;
+  if(cpCI)cpCI.destroy();
+  const ctx=document.getElementById('cpChart').getContext('2d');
+  const top=getCustomProducts(p).filter(i=>(i.profit||0)!==0).sort((a,b)=>(b.profit||0)-(a.profit||0)).slice(0,8);
+  if(!top.length)return;
+  cpCI=new Chart(ctx,{type:'bar',data:{labels:top.map(i=>i.desc.substring(0,22)+(i.desc.length>22?'...':'')),datasets:[{label:'Profit',data:top.map(i=>i.profit),backgroundColor:top.map(i=>(i.profit||0)>=0?'#238636':'#b62324')}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#8b949e',callback:v=>'\u09F3'+Math.abs(v).toLocaleString()},grid:{color:'#30363d'}},y:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'#30363d'}}}}});
+}
+
 // ── DYNAMIC PARTNER SYSTEM ──
 function getAllPartners(){
   // Core permanent partners always first
@@ -1295,7 +1432,13 @@ function saveEditProject(){
   const id=document.getElementById('ep-id').value;
   const p=DATA.projects.find(x=>x.id===id);
   if(!p)return;
+  const oldName=p.name;
   p.name=document.getElementById('ep-name').value;
+  if(oldName&&p.name&&oldName!==p.name){
+    DATA.customExpenses.forEach(e=>{if(e.project===oldName)e.project=p.name;});
+    DATA.customDeposits.forEach(d=>{if(d.project===oldName)d.project=p.name;});
+    (DATA.miscExpenses||[]).forEach(m=>{if(m.project===oldName)m.project=p.name;});
+  }
   p.po=document.getElementById('ep-po').value;
   p.client=document.getElementById('ep-client').value;
   p.location=document.getElementById('ep-location').value;
@@ -1323,7 +1466,7 @@ function saveEditProject(){
   const activePage=document.querySelector('.page.active');
   if(activePage){
     const pid=activePage.id.replace('page-','');
-    const fn={dashboard:renderDashboard,projects:renderProjects,'bibiyana-big':renderBB,'bibiyana-small':renderBS,shikalbaha:renderSH};
+    const fn={dashboard:renderDashboard,projects:renderProjects,'bibiyana-big':renderBB,'bibiyana-small':renderBS,shikalbaha:renderSH,'custom-project':()=>renderCustomProject(window._activeCustomProj)};
     if(fn[pid])fn[pid]();
   }
   alert('Project "'+p.name+'" updated successfully!');
@@ -1534,20 +1677,48 @@ function renderBBChart(){if(bbCI)bbCI.destroy();const ctx=document.getElementByI
 function renderBSChart(){if(bsCI)bsCI.destroy();const ctx=document.getElementById('bsChart').getContext('2d');const top=DATA.bsProducts.sort((a,b)=>b.profit-a.profit).slice(0,8);bsCI=new Chart(ctx,{type:'bar',data:{labels:top.map(i=>i.name.substring(0,24)+'...'),datasets:[{label:'Profit',data:top.map(i=>i.profit),backgroundColor:top.map(i=>i.profit>=0?'#238636':'#b62324')}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#8b949e',callback:v=>'\u09F3'+Math.abs(v).toLocaleString()},grid:{color:'#30363d'}},y:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'#30363d'}}}}});}
 function renderSHChart(){if(shCI)shCI.destroy();const ctx=document.getElementById('shChart').getContext('2d');shCI=new Chart(ctx,{type:'doughnut',data:{labels:['Products','VAT & Tax','Petty Exp','Admin/Misc'],datasets:[{data:[791500,221250,15407,60500],backgroundColor:['#1f6feb','#f0883e','#d29922','#8957e5'],borderWidth:2,borderColor:'#161b22'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'bottom',labels:{color:'#8b949e',font:{size:11}}}}}});}
 
-function openAddExpense(project,type){document.getElementById('me-project').value=project;document.getElementById('me-type').value=type;document.getElementById('modal-expense-title').textContent='Add '+(type==='petty'?'Petty Expense':'Product Item')+' - '+project;document.getElementById('modal-expense').classList.add('open');}
+function openAddExpense(project,type){document.getElementById('me-edit-id').value='';['me-spec','me-source','me-unitprice','me-tenderprice','me-desc','me-amount','me-person','me-remarks','me-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('me-qty').value='1';document.getElementById('me-project').value=project;document.getElementById('me-type').value=type;document.getElementById('modal-expense-title').textContent='Add '+(type==='petty'?'Petty Expense':'Product Item')+' - '+project;const pf=document.getElementById('me-product-fields');const proj=DATA.projects.find(x=>x.name===project);pf.style.display=(type==='product'&&proj&&isCustomProjectId(proj.id))?'':'none';document.getElementById('modal-expense').classList.add('open');}
 function saveExpense(){
+  const editId=parseFloat(document.getElementById('me-edit-id').value)||null;
   const d={project:document.getElementById('me-project').value,type:document.getElementById('me-type').value,desc:document.getElementById('me-desc').value,date:document.getElementById('me-date').value||'---',amount:parseFloat(document.getElementById('me-amount').value)||0,person:document.getElementById('me-person').value,remarks:document.getElementById('me-remarks').value};
-  if(!d.desc||!d.amount){alert('Please fill description and amount.');return;}
-  DATA.customExpenses.push(d);
   const p=DATA.projects.find(x=>x.name===d.project);
-  if(p&&d.type==='petty'){p.pettyExpenses+=d.amount;p.totalExpenses+=d.amount;}
+  const isCustom=p&&isCustomProjectId(p.id);
+  if(d.type==='product'&&isCustom){
+    d.spec=document.getElementById('me-spec').value;
+    d.qty=parseFloat(document.getElementById('me-qty').value)||1;
+    d.source=document.getElementById('me-source').value;
+    d.unitPrice=parseFloat(document.getElementById('me-unitprice').value)||0;
+    d.tenderPrice=parseFloat(document.getElementById('me-tenderprice').value)||0;
+    d.totalCost=d.unitPrice>0?d.unitPrice*d.qty:d.amount;
+    if(!d.amount)d.amount=d.totalCost;
+    d.profit=d.tenderPrice>0?(d.tenderPrice-d.totalCost):0;
+  }
+  if(!d.desc||!d.amount){alert('Please fill description and amount.');return;}
+  if(editId){
+    const existing=DATA.customExpenses.find(x=>x.id===editId);
+    if(existing){
+      const oldAmount=existing.amount;
+      Object.assign(existing,d,{id:editId});
+      if(p&&isCustom){recalcCustomProject(p);}
+      else if(p&&d.type==='petty'){p.pettyExpenses+=d.amount-oldAmount;p.totalExpenses+=d.amount-oldAmount;}
+    }
+  } else {
+    d.id=Date.now();
+    DATA.customExpenses.push(d);
+    if(p&&isCustom){recalcCustomProject(p);}
+    else if(p&&d.type==='petty'){p.pettyExpenses+=d.amount;p.totalExpenses+=d.amount;}
+  }
   saveToStorage();
   closeModal('modal-expense');
+  document.getElementById('me-edit-id').value='';
+  // reset product fields for next entry
+  ['me-spec','me-source','me-unitprice','me-tenderprice','me-desc','me-amount','me-person','me-remarks'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('me-qty').value='1';
   const activePage=document.querySelector('.page.active');
-  if(activePage){const pid=activePage.id.replace('page-','');const fn={expenses:renderExpenses,'bibiyana-big':renderBB,'bibiyana-small':renderBS,shikalbaha:renderSH,dashboard:renderDashboard};if(fn[pid])fn[pid]();}
+  if(activePage){const pid=activePage.id.replace('page-','');const fn={expenses:renderExpenses,'bibiyana-big':renderBB,'bibiyana-small':renderBS,shikalbaha:renderSH,dashboard:renderDashboard,'custom-project':()=>renderCustomProject(window._activeCustomProj)};if(fn[pid])fn[pid]();}
   showSaveToast('Expense saved!');
 }
-function openDepositModal(){document.getElementById('modal-deposit').classList.add('open');}
+function openDepositModal(){const sel=document.getElementById('md-project');sel.innerHTML=DATA.projects.map(p=>'<option>'+p.name+'</option>').join('');document.getElementById('modal-deposit').classList.add('open');}
 function saveDeposit(){const d={id:Date.now(),project:document.getElementById('md-project').value,type:document.getElementById('md-type').value,amount:parseFloat(document.getElementById('md-amount').value)||0,depositDate:document.getElementById('md-deposit-date').value||'---',releaseDate:document.getElementById('md-release-date').value||'TBD',status:document.getElementById('md-status').value,notes:document.getElementById('md-notes').value};DATA.customDeposits.push(d);saveToStorage();closeModal('modal-deposit');renderDeposits();}
 function saveNewProject(){
   const name=document.getElementById('np-name').value,tender=parseFloat(document.getElementById('np-tender').value)||0;
@@ -1559,7 +1730,7 @@ function saveNewProject(){
   saveToStorage();
   if(p.securityDeposit>0)DATA.customDeposits.push({id:Date.now(),project:name,type:'Performance Security',amount:p.securityDeposit,depositDate:document.getElementById('np-contract-date').value||'---',releaseDate:sdRelease||'TBD',status:'Pending',notes:(handover?'Handover: '+handover+'. ':'')+(document.getElementById('np-notes').value||'')});
   showSaveToast('"'+name+'" added successfully!');
-  showPage('projects');
+  showPage(p.id);
 }
 function calcReleaseDate(dateStr){
   if(!dateStr) return '';
@@ -1705,7 +1876,8 @@ function startRealtimeSync(){
       const pid = activePage.id.replace('page-','');
       const fn = {dashboard:renderDashboard, projects:renderProjects, deposits:renderDeposits,
         'bibiyana-big':renderBB, 'bibiyana-small':renderBS, shikalbaha:renderSH,
-        partners:renderPartnersPage, expenses:renderExpenses, 'misc-exp':renderMiscExp};
+        partners:renderPartnersPage, expenses:renderExpenses, 'misc-exp':renderMiscExp,
+        'custom-project':()=>renderCustomProject(window._activeCustomProj)};
       if(fn[pid]) fn[pid]();
     }
     if(saved.lastUpdated){
