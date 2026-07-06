@@ -701,7 +701,7 @@
         </div>
         <div class="form-group"><label>Date</label><input type="date" id="me-date"></div>
         <div class="form-group"><label>Amount (&#2547;) *</label><input type="number" id="me-amount" placeholder="0"></div>
-        <div class="form-group"><label>Person</label><input type="text" id="me-person" placeholder="e.g. Tariquzzaman"></div>
+        <div class="form-group"><label>Person</label><select id="me-person"><option value="">-- Select --</option><option>Tariquzzaman</option><option>Monzur</option></select></div>
         <div class="form-group"><label>Remarks</label><input type="text" id="me-remarks" placeholder="Optional"></div>
       </div>
     </div>
@@ -1234,7 +1234,9 @@ function openEditExpense(id){
   document.getElementById('me-desc').value=e.desc||'';
   document.getElementById('me-date').value=(e.date&&e.date!=='---')?e.date:'';
   document.getElementById('me-amount').value=e.amount||'';
-  document.getElementById('me-person').value=e.person||'';
+  const personSel=document.getElementById('me-person');
+  personSel.value=e.person||'';
+  if(e.person&&personSel.value!==e.person){const o=document.createElement('option');o.textContent=e.person;personSel.appendChild(o);personSel.value=e.person;}
   document.getElementById('me-remarks').value=e.remarks||'';
   const proj=DATA.projects.find(x=>x.name===e.project);
   const showProd=e.type==='product'&&proj&&isCustomProjectId(proj.id);
@@ -1683,16 +1685,18 @@ function syncAmountField(){
   const prodVisible=document.getElementById('me-product-fields').style.display!=='none';
   const unitPrice=parseFloat(document.getElementById('me-unitprice').value)||0;
   const qty=parseFloat(document.getElementById('me-qty').value)||1;
-  if(prodVisible&&unitPrice>0){
-    amt.value=Math.round(unitPrice*qty*100)/100;
+  if(prodVisible){
+    amt.value=unitPrice>0?Math.round(unitPrice*qty*100)/100:'';
     amt.readOnly=true;
     amt.style.opacity='0.65';
     amt.style.cursor='not-allowed';
+    amt.placeholder='Auto: Unit Price \u00d7 Qty';
     amt.title='Auto-calculated: Unit Price \u00d7 Qty';
   }else{
     amt.readOnly=false;
     amt.style.opacity='';
     amt.style.cursor='';
+    amt.placeholder='0';
     amt.title='';
   }
 }
@@ -1708,8 +1712,9 @@ function saveExpense(){
     d.source=document.getElementById('me-source').value;
     d.unitPrice=parseFloat(document.getElementById('me-unitprice').value)||0;
     d.tenderPrice=parseFloat(document.getElementById('me-tenderprice').value)||0;
-    d.totalCost=d.unitPrice>0?d.unitPrice*d.qty:d.amount;
-    if(!d.amount)d.amount=d.totalCost;
+    if(!d.desc||d.unitPrice<=0){alert('Please fill description and unit price.');return;}
+    d.totalCost=Math.round(d.unitPrice*d.qty*100)/100;
+    d.amount=d.totalCost;
     d.profit=d.tenderPrice>0?(d.tenderPrice-d.totalCost):0;
   }
   if(!d.desc||!d.amount){alert('Please fill description and amount.');return;}
