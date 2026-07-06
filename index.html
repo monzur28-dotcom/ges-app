@@ -1130,6 +1130,8 @@ function toggleDepositStatus(projId){
   // Also update base deposit record status
   const dep = DATA.deposits.find(d=>d.project===p.name);
   if(dep) dep.status = newStatus;
+  // Recalculate cash at hand for custom projects (held vs released deposit)
+  if(isCustomProjectId(p.id)) recalcCustomProject(p);
   saveToStorage();
   renderDeposits();
   // Update dashboard deposits tracker too
@@ -1199,6 +1201,9 @@ function recalcCustomProject(p){
     const gross=prods.reduce((a,i)=>a+(i.profit||0),0);
     p.totalProfit=gross-p.pettyExpenses-(p.vatTax||0);
   }
+  // Cash at hand = net profit minus deposit still held by govt; full profit once released
+  const heldDeposit=(p.depositStatus==='Released')?0:(p.securityDeposit||0);
+  p.cashReceived=(p.totalProfit||0)-heldDeposit;
   p.margin=p.tenderValue>0?(p.totalProfit/p.tenderValue*100):0;
 }
 
@@ -1222,7 +1227,9 @@ function renderCustomProject(projId){
   document.getElementById('cp-add-petty-btn').setAttribute('onclick',"openAddExpense('"+p.name.replace(/'/g,"\\'")+"','petty')");
   document.getElementById('cp-products-tbody').innerHTML=prods.length?prods.map((i,ix)=>`<tr><td>${ix+1}</td><td style="color:var(--text)">${i.desc}</td><td class="mono">${i.spec||'---'}</td><td style="text-align:center">${i.qty||1}</td><td><span class="badge blue" style="font-size:10px">${i.source||'---'}</span></td><td class="num">${i.unitPrice>0?fmtn(i.unitPrice):'---'}</td><td class="num neg">${fmtn(i.totalCost||i.amount)}</td><td class="num">${i.tenderPrice>0?fmtn(i.tenderPrice):'---'}</td><td class="num ${(i.profit||0)>=0?'pos':'neg'}">${i.profit!==undefined&&i.profit!==0?fmtn(i.profit):'---'}</td>${expenseActionBtns(i.id)}</tr>`).join(''):'<tr><td colspan="10" style="text-align:center;color:var(--text3);padding:24px">No product items yet. Click "+ Add Item" to start.</td></tr>';
   document.getElementById('cp-petty-tbody').innerHTML=petty.length?petty.map((i,ix)=>`<tr><td>${ix+1}</td><td>${i.date||'---'}</td><td style="color:var(--text)">${i.desc}</td><td><span class="badge purple" style="font-size:10px">${i.person||'---'}</span></td><td class="num neg">${fmtn(i.amount)}</td>${expenseActionBtns(i.id)}</tr>`).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:24px">No petty expenses yet. Click "+ Add Expense" to start.</td></tr>';
-  document.getElementById('cp-fin-summary').innerHTML=buildFinSummary([['Tender Value',p.tenderValue,'pos'],['Product Cost',p.productCost,'neg'],['VAT & Tax',p.vatTax||0,'neg'],['Petty Expenses',p.pettyExpenses,'neg'],['Total Expenses',p.totalExpenses,'neg'],['Net Profit',p.totalProfit,'pos'],['Security Deposit (Held)',p.securityDeposit,'hold'],['Cash At Hand',p.cashReceived,'pos'],['Profit Margin',(p.margin||0).toFixed(2)+'%','pos']]);
+  const sdLabel=p.depositStatus==='Released'?'Security Deposit (Released)':'Security Deposit (Held)';
+  const sdCls=p.depositStatus==='Released'?'pos':'hold';
+  document.getElementById('cp-fin-summary').innerHTML=buildFinSummary([['Tender Value',p.tenderValue,'pos'],['Product Cost',p.productCost,'neg'],['VAT & Tax',p.vatTax||0,'neg'],['Petty Expenses',p.pettyExpenses,'neg'],['Total Expenses',p.totalExpenses,'neg'],['Net Profit',p.totalProfit,'pos'],[sdLabel,p.securityDeposit,sdCls],['Cash At Hand',p.cashReceived,'pos'],['Profit Margin',(p.margin||0).toFixed(2)+'%','pos']]);
 }
 
 function openEditExpense(id){
@@ -1463,6 +1470,11 @@ function saveEditProject(){
     const dep=[...DATA.deposits,...DATA.customDeposits].find(d=>d.project===p.name&&d.status==='Pending');
     if(dep) dep.releaseDate=p.sdReleaseDate;
   }
+  // Keep deposit record amount in sync with edited security deposit
+  const depAmt=[...DATA.deposits,...DATA.customDeposits].find(d=>d.project===p.name);
+  if(depAmt) depAmt.amount=p.securityDeposit;
+  // Recalculate cash at hand for custom projects (profit minus held deposit)
+  if(isCustomProjectId(p.id)) recalcCustomProject(p);
   saveToStorage();
   closeModal('modal-edit-project');
   // Refresh current view
