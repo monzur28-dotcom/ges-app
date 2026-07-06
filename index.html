@@ -693,9 +693,9 @@
         <div class="form-group full" id="me-product-fields" style="display:none">
           <div class="form-grid" style="margin:0">
             <div class="form-group"><label>Spec / Part No.</label><input type="text" id="me-spec" placeholder="e.g. 3500/42M"></div>
-            <div class="form-group"><label>Qty</label><input type="number" id="me-qty" placeholder="1" value="1"></div>
+            <div class="form-group"><label>Qty</label><input type="number" id="me-qty" placeholder="1" value="1" oninput="syncAmountField()"></div>
             <div class="form-group"><label>Source</label><input type="text" id="me-source" placeholder="e.g. UAE, USA, China"></div>
-            <div class="form-group"><label>Unit Price (&#2547;)</label><input type="number" id="me-unitprice" placeholder="0"></div>
+            <div class="form-group"><label>Unit Price (&#2547;)</label><input type="number" id="me-unitprice" placeholder="0" oninput="syncAmountField()"></div>
             <div class="form-group"><label>Tender Price (&#2547;)</label><input type="number" id="me-tenderprice" placeholder="0"></div>
           </div>
         </div>
@@ -1247,6 +1247,7 @@ function openEditExpense(id){
     document.getElementById('me-tenderprice').value=e.tenderPrice||'';
   }
   document.getElementById('modal-expense-title').textContent='Edit '+(e.type==='petty'?'Petty Expense':'Product Item')+' - '+e.project;
+  syncAmountField();
   document.getElementById('modal-expense').classList.add('open');
 }
 
@@ -1677,7 +1678,25 @@ function renderBBChart(){if(bbCI)bbCI.destroy();const ctx=document.getElementByI
 function renderBSChart(){if(bsCI)bsCI.destroy();const ctx=document.getElementById('bsChart').getContext('2d');const top=DATA.bsProducts.sort((a,b)=>b.profit-a.profit).slice(0,8);bsCI=new Chart(ctx,{type:'bar',data:{labels:top.map(i=>i.name.substring(0,24)+'...'),datasets:[{label:'Profit',data:top.map(i=>i.profit),backgroundColor:top.map(i=>i.profit>=0?'#238636':'#b62324')}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#8b949e',callback:v=>'\u09F3'+Math.abs(v).toLocaleString()},grid:{color:'#30363d'}},y:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'#30363d'}}}}});}
 function renderSHChart(){if(shCI)shCI.destroy();const ctx=document.getElementById('shChart').getContext('2d');shCI=new Chart(ctx,{type:'doughnut',data:{labels:['Products','VAT & Tax','Petty Exp','Admin/Misc'],datasets:[{data:[791500,221250,15407,60500],backgroundColor:['#1f6feb','#f0883e','#d29922','#8957e5'],borderWidth:2,borderColor:'#161b22'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'bottom',labels:{color:'#8b949e',font:{size:11}}}}}});}
 
-function openAddExpense(project,type){document.getElementById('me-edit-id').value='';['me-spec','me-source','me-unitprice','me-tenderprice','me-desc','me-amount','me-person','me-remarks','me-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('me-qty').value='1';document.getElementById('me-project').value=project;document.getElementById('me-type').value=type;document.getElementById('modal-expense-title').textContent='Add '+(type==='petty'?'Petty Expense':'Product Item')+' - '+project;const pf=document.getElementById('me-product-fields');const proj=DATA.projects.find(x=>x.name===project);pf.style.display=(type==='product'&&proj&&isCustomProjectId(proj.id))?'':'none';document.getElementById('modal-expense').classList.add('open');}
+function syncAmountField(){
+  const amt=document.getElementById('me-amount');
+  const prodVisible=document.getElementById('me-product-fields').style.display!=='none';
+  const unitPrice=parseFloat(document.getElementById('me-unitprice').value)||0;
+  const qty=parseFloat(document.getElementById('me-qty').value)||1;
+  if(prodVisible&&unitPrice>0){
+    amt.value=Math.round(unitPrice*qty*100)/100;
+    amt.readOnly=true;
+    amt.style.opacity='0.65';
+    amt.style.cursor='not-allowed';
+    amt.title='Auto-calculated: Unit Price \u00d7 Qty';
+  }else{
+    amt.readOnly=false;
+    amt.style.opacity='';
+    amt.style.cursor='';
+    amt.title='';
+  }
+}
+function openAddExpense(project,type){document.getElementById('me-edit-id').value='';['me-spec','me-source','me-unitprice','me-tenderprice','me-desc','me-amount','me-person','me-remarks','me-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('me-qty').value='1';document.getElementById('me-project').value=project;document.getElementById('me-type').value=type;document.getElementById('modal-expense-title').textContent='Add '+(type==='petty'?'Petty Expense':'Product Item')+' - '+project;const pf=document.getElementById('me-product-fields');const proj=DATA.projects.find(x=>x.name===project);pf.style.display=(type==='product'&&proj&&isCustomProjectId(proj.id))?'':'none';syncAmountField();document.getElementById('modal-expense').classList.add('open');}
 function saveExpense(){
   const editId=parseFloat(document.getElementById('me-edit-id').value)||null;
   const d={project:document.getElementById('me-project').value,type:document.getElementById('me-type').value,desc:document.getElementById('me-desc').value,date:document.getElementById('me-date').value||'---',amount:parseFloat(document.getElementById('me-amount').value)||0,person:document.getElementById('me-person').value,remarks:document.getElementById('me-remarks').value};
